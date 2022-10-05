@@ -1,0 +1,5 @@
+name: eyeofcthulhu
+version: '${project.version}'
+main: me.zelha.eyeofcthulhu.Main
+api-version: 1.8.9
+authors: [ zel ]
