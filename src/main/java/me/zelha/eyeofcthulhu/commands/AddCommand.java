@@ -36,10 +36,8 @@ public class AddCommand implements CommandExecutor {
 
             f.setAccessible(true);
 
-            if (f.getDeclaringClass() != Particle.class) return false;
-
             p = (Particle) f.get(this);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException | ClassCastException e) {
             e.printStackTrace();
 
             return false;

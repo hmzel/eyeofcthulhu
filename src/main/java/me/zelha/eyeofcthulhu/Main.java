@@ -23,8 +23,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        World world = Bukkit.getWorld("zelha");
-        LocationSafe center = new LocationSafe(world, 0, 45, 0);
+        World world = Bukkit.getWorld("world");
+        LocationSafe center = new LocationSafe(world, 0, 100, 0);
         Particle white = new ParticleDust(Color.WHITE);
         Particle red = new ParticleDust(Color.RED, 50);
         ParticleSphere body = new ParticleSphere(white, center, 3, 3, 3, 20, 750);
@@ -32,11 +32,11 @@ public final class Main extends JavaPlugin {
         eoc.addShape(body);
 
         for (int i = 0; i < 10; i++) {
-            eoc.addShape(new ParticleLine(red, 30, new LocationSafe(world, 0, 48, 0), new LocationSafe(world, 0, 51.5, 0)));
+            eoc.addShape(new ParticleLine(red, 30, new LocationSafe(world, 0, 103, 0), new LocationSafe(world, 0, 106.5, 0)));
         }
 
         for (int i = 0; i < 5; i++) {
-            eoc.addShape(new ParticleLine(red, 10, new LocationSafe(world, 0, 48, 0), new LocationSafe(world, 0, 49, 0)));
+            eoc.addShape(new ParticleLine(red, 10, new LocationSafe(world, 0, 103, 0), new LocationSafe(world, 0, 104, 0)));
         }
 
         for (int i = 0; i < 15; i++) {
