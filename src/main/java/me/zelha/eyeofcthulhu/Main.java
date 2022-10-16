@@ -25,9 +25,8 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         World world = Bukkit.getWorld("world");
         LocationSafe center = new LocationSafe(world, 0, 100, 0);
-        Particle white = new ParticleDust(Color.WHITE);
-        Particle red = new ParticleDust(Color.RED, 50);
-        ParticleSphere body = new ParticleSphere(white, center, 3, 3, 3, 20, 750);
+        Particle red = new ParticleDust(Color.RED, 75);
+        ParticleSphere body = new ParticleSphere(new ParticleDust(Color.WHITE).setPureColor(true), center, 3, 3, 3, 20, 750);
 
         eoc.addShape(body);
 

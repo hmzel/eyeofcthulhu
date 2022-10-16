@@ -5,6 +5,7 @@ import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import me.zelha.eyeofcthulhu.Main;
 import org.apache.commons.lang3.tuple.Pair;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -20,9 +21,19 @@ public class SoutCommand implements CommandExecutor {
             Pair<Particle, Integer> pair = body.getSecondaryParticle(i);
 
             if (pair.getKey() instanceof ColorableParticle) {
-                System.out.println(((ColorableParticle) pair.getKey()).getColor().asRGB() + " " + pair.getValue());
+                Color color = ((ColorableParticle) pair.getKey()).getColor();
+                String s = "";
+
+                if (color.equals(Color.RED)) s = "red";
+                if (color.equals(Color.WHITE)) s = "white";
+                if (color.equals(Color.OLIVE)) s = "olive";
+                if (color.equals(Color.GRAY)) s = "gray";
+                if (color.equals(Color.BLUE)) s = "blue";
+                if (color.equals(Color.BLACK)) s = "black";
+
+                System.out.println(s + " " + pair.getValue());
             } else {
-                System.out.println(pair.getKey() + " " + pair.getValue());
+                System.out.println("none " + pair.getValue());
             }
         }
 

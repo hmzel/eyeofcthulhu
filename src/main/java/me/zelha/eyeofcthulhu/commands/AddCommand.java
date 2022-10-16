@@ -16,10 +16,10 @@ import java.lang.reflect.Field;
 public class AddCommand implements CommandExecutor {
 
     private final ParticleSphere body = (ParticleSphere) Main.getEoc().getShape(0);
-    private final Particle white = new ParticleDust(Color.WHITE);
+    private final Particle white = new ParticleDust(Color.WHITE).setPureColor(true);
     private final Particle black = new ParticleDust(Color.BLACK);
-    private final Particle grey = new ParticleDust(Color.GRAY);
-    private final Particle red = new ParticleDust(Color.RED);
+    private final Particle grey = new ParticleDust(Color.GRAY, 35);
+    private final Particle red = new ParticleDust(Color.RED, 85);
     private final Particle blue = new ParticleDust(Color.BLUE);
     private final Particle olive = new ParticleDust(Color.OLIVE);
     private final Particle none = new ParticleNull();
