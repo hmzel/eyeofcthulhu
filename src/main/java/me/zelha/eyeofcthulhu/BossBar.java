@@ -34,6 +34,13 @@ public class BossBar {
         new BukkitRunnable() {
             @Override
             public void run() {
+                if (health <= 0) {
+                    wither.remove();
+                    cancel();
+
+                    return;
+                }
+
                 wither.teleport(location);
                 wither.setHealth(health);
             }
