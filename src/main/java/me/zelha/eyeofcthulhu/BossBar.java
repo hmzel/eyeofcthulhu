@@ -13,9 +13,9 @@ public class BossBar {
     private String display;
     private double health;
 
-    public BossBar(Location location, String display, double health) {
+    public BossBar(Location location, String display, double maxHealth) {
         this.display = display;
-        this.health = health;
+        this.health = maxHealth;
 
         Wither wither = (Wither) location.getWorld().spawnEntity(location, EntityType.WITHER);
         EntityWither nmsWither = ((CraftWither) wither).getHandle();
@@ -23,7 +23,7 @@ public class BossBar {
 
         if (tag == null) tag = new NBTTagCompound();
 
-        wither.setMaxHealth(health);
+        wither.setMaxHealth(maxHealth);
         wither.setCustomName(display);
         nmsWither.c(tag);
         tag.setInt("NoAI", 1);
