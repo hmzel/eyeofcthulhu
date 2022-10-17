@@ -30,6 +30,8 @@ public class ServantOfCthulhu {
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
         this.hitbox = new Hitbox(servant, 0.75, 1, center, 10, null);
 
+        servant.addShape(body);
+
         for (int i = 0; i < 3; i++) {
             ParticleLine tendril = new ParticleLine(tendrilRed, 4,
                     new LocationSafe(world, center.getX(), center.getY() + 0.5, center.getZ()),
