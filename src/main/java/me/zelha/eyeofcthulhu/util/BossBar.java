@@ -49,6 +49,12 @@ public class BossBar {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
+    public void remove() {
+        health = 0;
+
+        wither.remove();
+    }
+
     public void setDisplay(String display) {
         this.display = display;
 

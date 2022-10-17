@@ -2,6 +2,7 @@ package me.zelha.eyeofcthulhu.util;
 
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
+import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import net.minecraft.server.v1_8_R3.EntitySlime;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
 import org.bukkit.Location;
@@ -58,12 +59,15 @@ public class Hitbox {
                 if (bar != null) bar.setHealth(hitbox.getHealth());
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
+
+        HitboxListener.registerHitbox(this);
     }
 
     public void remove() {
         model.stop();
-        bar.setHealth(0);
+        bar.remove();
         hitbox.remove();
+        HitboxListener.unregisterHitbox(this);
 
         hitbox = null;
     }
