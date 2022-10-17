@@ -1,4 +1,4 @@
-package me.zelha.eyeofcthulhu;
+package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.particles.ParticleDust;
 import hm.zelha.particlesfx.particles.ParticleNull;
@@ -7,6 +7,8 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import me.zelha.eyeofcthulhu.util.BossBar;
+import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -25,16 +27,17 @@ public class EyeOfCthulhu {
     private static final Particle NONE = new ParticleNull();
     private final ThreadLocalRandom rng = ThreadLocalRandom.current();
     private final ParticleShapeCompound eoc = new ParticleShapeCompound();
+    private final Hitbox hitbox;
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, 0, 0, 0);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
-        ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
+        this.hitbox = new Hitbox(eoc, 7.5, 6, center, 1000, new BossBar(center, "Eye of Cthulhu", 1000));
 
         center.add(location);
-        center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
-        eoc.addShape(body);
+        //center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
+        eoc.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
 
         for (int i = 0; i < 10; i++) {
             eoc.addShape(new ParticleLine(tendrilRed, 30,
@@ -230,6 +233,7 @@ public class EyeOfCthulhu {
         body.addParticle(BLACK, 745);
     }
 
+    //assumes colorizePhaseOne has already been ran
     private void colorizePhaseTwo() {
         ParticleSphere body = (ParticleSphere) eoc.getShape(0);
         int removeIndex = body.getSecondaryParticleAmount() - 6;

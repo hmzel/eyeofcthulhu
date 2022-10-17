@@ -1,4 +1,4 @@
-package me.zelha.eyeofcthulhu;
+package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.particles.ParticleDust;
 import hm.zelha.particlesfx.particles.parents.Particle;
