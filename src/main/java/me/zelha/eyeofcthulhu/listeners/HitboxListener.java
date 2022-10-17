@@ -1,6 +1,7 @@
 package me.zelha.eyeofcthulhu.listeners;
 
 import me.zelha.eyeofcthulhu.util.Hitbox;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -17,6 +18,11 @@ public class HitboxListener implements Listener {
         for (Hitbox box : hitboxes) {
             if (box.sameEntity(e.getDamager())) {
                 e.setDamage(box.getDamage());
+            }
+
+            if (box.sameEntity(e.getEntity()) && ((Slime) e.getEntity()).getHealth() - e.getFinalDamage() <= 0) {
+                box.remove();
+                e.setCancelled(true);
             }
         }
     }
