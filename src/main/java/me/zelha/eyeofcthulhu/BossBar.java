@@ -10,14 +10,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class BossBar {
 
+    private final Wither wither;
     private String display;
     private double health;
 
     public BossBar(Location location, String display, double maxHealth) {
         this.display = display;
         this.health = maxHealth;
-
-        Wither wither = (Wither) location.getWorld().spawnEntity(location, EntityType.WITHER);
+        this.wither = (Wither) location.getWorld().spawnEntity(location, EntityType.WITHER);
         EntityWither nmsWither = ((CraftWither) wither).getHandle();
         NBTTagCompound tag = nmsWither.getNBTTag();
 
@@ -28,7 +28,8 @@ public class BossBar {
         nmsWither.c(tag);
         tag.setInt("NoAI", 1);
         tag.setInt("Invul", 879);
-        tag.setBoolean("Silent", true);
+        tag.setInt("PersistenceRequired", 1);
+        tag.setInt("Silent", 1);
         nmsWither.f(tag);
 
         new BukkitRunnable() {
@@ -49,9 +50,13 @@ public class BossBar {
 
     public void setDisplay(String display) {
         this.display = display;
+
+        wither.setCustomName(display);
     }
 
     public void setHealth(double health) {
+        if (health > wither.getMaxHealth()) wither.setMaxHealth(health);
+
         this.health = health;
     }
 
