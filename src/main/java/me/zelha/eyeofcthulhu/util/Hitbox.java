@@ -92,4 +92,8 @@ public class Hitbox {
     public double getDamage() {
         return damage;
     }
+
+    public BossBar getBar() {
+        return bar;
+    }
 }

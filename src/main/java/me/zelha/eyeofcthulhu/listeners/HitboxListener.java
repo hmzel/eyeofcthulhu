@@ -5,6 +5,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,17 @@ public class HitboxListener implements Listener {
 
             if (box.sameEntity(e.getEntity()) && ((Slime) e.getEntity()).getHealth() - e.getFinalDamage() <= 0) {
                 box.remove();
-                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDeath(EntityDeathEvent e) {
+        for (Hitbox box : hitboxes) {
+            if (box.sameEntity(e.getEntity())) {
+                e.getDrops().clear();
+
+                if (box.getBar() != null) e.setDroppedExp(500);
             }
         }
     }
