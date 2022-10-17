@@ -5,6 +5,7 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.ArrayList;
@@ -23,6 +24,15 @@ public class HitboxListener implements Listener {
 
             if (box.sameEntity(e.getEntity()) && ((Slime) e.getEntity()).getHealth() - e.getFinalDamage() <= 0) {
                 box.remove();
+            }
+        }
+    }
+
+    @EventHandler
+    public void noNormalDamage(EntityDamageEvent e) {
+        for (Hitbox box : hitboxes) {
+            if (box.sameEntity(e.getEntity()) && e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                e.setCancelled(true);
             }
         }
     }
