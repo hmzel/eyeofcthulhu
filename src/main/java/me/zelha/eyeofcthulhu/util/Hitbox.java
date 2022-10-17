@@ -96,4 +96,8 @@ public class Hitbox {
     public BossBar getBar() {
         return bar;
     }
+
+    public Slime getSlime() {
+        return hitbox;
+    }
 }
