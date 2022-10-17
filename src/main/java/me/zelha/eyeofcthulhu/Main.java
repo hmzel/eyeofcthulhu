@@ -1,6 +1,6 @@
 package me.zelha.eyeofcthulhu;
 
-import me.zelha.eyeofcthulhu.enemies.EyeOfCthulhu;
+import me.zelha.eyeofcthulhu.enemies.ServantOfCthulhu;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,7 +15,7 @@ public final class Main extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
 
-        new EyeOfCthulhu(Bukkit.getPlayer("hmzel").getLocation());
+        new ServantOfCthulhu(Bukkit.getPlayer("hmzel").getLocation());
     }
 
     @Override

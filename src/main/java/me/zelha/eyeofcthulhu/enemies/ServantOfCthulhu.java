@@ -6,6 +6,7 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,12 +21,14 @@ public class ServantOfCthulhu {
     private static final Particle PURPLE = new ParticleDust(Color.PURPLE);
     private final ThreadLocalRandom rng = ThreadLocalRandom.current();
     private final ParticleShapeCompound servant = new ParticleShapeCompound();
+    private final Hitbox hitbox;
 
     public ServantOfCthulhu(Location location) {
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
+        this.hitbox = new Hitbox(servant, 0.75, 1, center, 10, null);
 
         for (int i = 0; i < 3; i++) {
             ParticleLine tendril = new ParticleLine(tendrilRed, 4,
