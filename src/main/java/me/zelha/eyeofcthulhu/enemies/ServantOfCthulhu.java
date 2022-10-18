@@ -17,6 +17,8 @@ import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ServantOfCthulhu {
@@ -130,21 +132,18 @@ public class ServantOfCthulhu {
         if (target != null && target.getLocation().distance(center) > 25) target = null;
 
         if (target == null) {
-            for (Entity e : center.getWorld().getNearbyEntities(center, 50, 50, 50)) {
+            List<Entity> nearbyEntities = (ArrayList<Entity>) center.getWorld().getNearbyEntities(center, 50, 50, 50);
+
+            for (int i = 0; i < nearbyEntities.size(); i++) {
+                Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
+
                 if (e instanceof Player) continue;
                 if (e instanceof Slime) continue;
                 if (e instanceof Monster) continue;
                 if (!(e instanceof LivingEntity)) continue;
 
-                if (target == null) {
-                    target = e;
-
-                    continue;
-                }
-
-                if (e.getLocation().distance(center) < target.getLocation().distance(center)) {
-                    target = e;
-                }
+                target = e;
+                break;
             }
         }
 
