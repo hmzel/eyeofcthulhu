@@ -93,7 +93,7 @@ public class ServantOfCthulhu {
                     return;
                 }
 
-                l.zero().add(target.locX, target.locY + 1.5, target.locZ);
+                l.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                 LVMath.subtractToVector(vHelper, l, body.getCenter());
                 vHelper.normalize().multiply(0.2);
                 servant.move(vHelper);
