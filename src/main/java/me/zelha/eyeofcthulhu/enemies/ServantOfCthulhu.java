@@ -129,20 +129,22 @@ public class ServantOfCthulhu {
 
         if (target != null && target.getLocation().distance(center) > 25) target = null;
 
-        for (Entity e : center.getWorld().getNearbyEntities(center, 50, 50, 50)) {
-            if (e instanceof Player) continue;
-            if (e instanceof Slime) continue;
-            if (e instanceof Monster) continue;
-            if (!(e instanceof LivingEntity)) continue;
+        if (target == null) {
+            for (Entity e : center.getWorld().getNearbyEntities(center, 50, 50, 50)) {
+                if (e instanceof Player) continue;
+                if (e instanceof Slime) continue;
+                if (e instanceof Monster) continue;
+                if (!(e instanceof LivingEntity)) continue;
 
-            if (target == null) {
-                target = e;
+                if (target == null) {
+                    target = e;
 
-                continue;
-            }
+                    continue;
+                }
 
-            if (e.getLocation().distance(center) < target.getLocation().distance(center)) {
-                target = e;
+                if (e.getLocation().distance(center) < target.getLocation().distance(center)) {
+                    target = e;
+                }
             }
         }
 
