@@ -15,8 +15,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import javax.annotation.Nullable;
-
 public class Hitbox {
 
     private final ParticleEnemy enemy;
@@ -25,18 +23,22 @@ public class Hitbox {
     private BossBar bar;
     private Slime hitbox;
 
-    public Hitbox(ParticleEnemy enemy, double size, double damage, double maxHealth, @Nullable BossBar bar) {
+    public Hitbox(ParticleEnemy enemy, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
         Location location = ((ParticleSphere) enemy.getModel().getShape(0)).getCenter();
         this.l = location.clone().add(0, -(size / 3.5), 0);
         this.damage = damage;
-        this.bar = bar;
         this.hitbox = (Slime) location.getWorld().spawnEntity(l, EntityType.SLIME);
         EntitySlime nmsSlime = ((CraftSlime) hitbox).getHandle();
         NBTTagCompound tag = nmsSlime.getNBTTag();
 
-        if (tag == null) tag = new NBTTagCompound();
-        if (bar != null) bar.setHealth(maxHealth);
+        if (bossBar) {
+            this.bar = new BossBar(location, displayName, maxHealth);
+        }
+
+        if (tag == null) {
+            tag = new NBTTagCompound();
+        }
 
         nmsSlime.c(tag);
         tag.setInt("NoAI", 1);
@@ -47,6 +49,7 @@ public class Hitbox {
         hitbox.setMaxHealth(maxHealth);
         hitbox.setHealth(maxHealth);
         hitbox.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
+        hitbox.setCustomName(displayName);
 
         new BukkitRunnable() {
             @Override
