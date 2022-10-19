@@ -10,7 +10,6 @@ import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.*;
@@ -99,12 +98,13 @@ public class ServantOfCthulhu {
                 servant.move(vHelper);
                 servant.face(l);
 
-                if (!(target instanceof EntityPlayer)) {
-                    for (Entity e : l.getWorld().getNearbyEntities(body.getCenter(), 1, 1, 1)) {
-                        if (e.equals(target.getBukkitEntity())) {
-                            ((LivingEntity) e).damage(hitbox.getDamage(), hitbox.getSlime());
-                        }
-                    }
+                for (Entity e : l.getWorld().getNearbyEntities(body.getCenter(), 1, 1, 1)) {
+                    if (e instanceof Player) continue;
+                    if (e instanceof Monster) continue;
+                    if (e instanceof Slime) continue;
+                    if (!(e instanceof LivingEntity)) continue;
+
+                    ((LivingEntity) e).damage(hitbox.getDamage(), hitbox.getSlime());
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
