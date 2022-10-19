@@ -103,10 +103,13 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 model.face(l);
 
                 for (Entity e : l.getWorld().getNearbyEntities(body.getCenter(), 1, 1, 1)) {
-                    if (e instanceof Player) continue;
-                    if (e instanceof Monster) continue;
-                    if (e instanceof Slime) continue;
-                    if (!(e instanceof LivingEntity)) continue;
+
+                    if (!e.getUniqueId().equals(target.getUniqueID())) {
+                        if (e instanceof Player) continue;
+                        if (e instanceof Monster) continue;
+                        if (e instanceof Slime) continue;
+                        if (!(e instanceof LivingEntity)) continue;
+                    }
 
                     ((LivingEntity) e).damage(hitbox.getDamage(), hitbox.getSlime());
                 }
