@@ -21,6 +21,7 @@ public class Hitbox {
     private double damage;
     private BossBar bar;
     private Slime hitbox;
+    private double defense = 0;
 
     public Hitbox(ParticleEnemy enemy, Location location, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
@@ -86,12 +87,20 @@ public class Hitbox {
         if (bar != null) bar.setHealth(health);
     }
 
+    public void setDefense(double defense) {
+        this.defense = defense;
+    }
+
     public void setDamage(double damage) {
         this.damage = damage;
     }
 
     public double getBarHealth() {
         return bar.getHealth();
+    }
+
+    public double getDefense() {
+        return defense;
     }
 
     public double getDamage() {
