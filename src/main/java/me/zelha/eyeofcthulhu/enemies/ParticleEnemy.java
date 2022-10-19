@@ -18,11 +18,10 @@ public abstract class ParticleEnemy {
 
     protected static final ThreadLocalRandom rng = ThreadLocalRandom.current();
     protected final ParticleShapeCompound model = new ParticleShapeCompound();
-    protected final Hitbox box;
+    protected Hitbox hitbox;
     protected EntityLiving target = null;
 
-    protected ParticleEnemy(Hitbox box) {
-        this.box = box;
+    protected ParticleEnemy() {
     }
 
     public void target(Entity e) {
