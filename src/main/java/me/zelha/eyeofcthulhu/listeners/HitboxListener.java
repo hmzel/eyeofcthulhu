@@ -4,6 +4,7 @@ import hm.zelha.particlesfx.particles.ParticleCloud;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Slime;
@@ -33,21 +34,23 @@ public class HitboxListener implements Listener {
 
     @EventHandler
     public void noNormalDamage(EntityDamageEvent e) {
-        for (Hitbox box : hitboxes) {
-            if (box.sameEntity(e.getEntity())) {
+        Entity entity = e.getEntity();
+
+        for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
+            if (box.sameEntity(entity)) {
                 if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
                     e.setCancelled(true);
                 }
 
-                if (((Slime) e.getEntity()).getHealth() - e.getFinalDamage() <= 0) {
+                if (((Slime) entity).getHealth() - e.getFinalDamage() <= 0) {
                     e.setCancelled(true);
 
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            ExperienceOrb orb = (ExperienceOrb) box.getSlime().getWorld().spawnEntity(box.getSlime().getLocation(), EntityType.EXPERIENCE_ORB);
+                            ExperienceOrb orb = (ExperienceOrb) entity.getWorld().spawnEntity(entity.getLocation(), EntityType.EXPERIENCE_ORB);
 
-                            deadCloud.display(box.getSlime().getLocation());
+                            deadCloud.display(entity.getLocation());
                             orb.setExperience(5);
                         }
                     }.runTaskLater(Main.getInstance(), 10);
@@ -78,7 +81,7 @@ public class HitboxListener implements Listener {
     }
 
     public static void onDisable() {
-        for (Hitbox box : hitboxes) {
+        for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
             box.remove();
         }
     }
