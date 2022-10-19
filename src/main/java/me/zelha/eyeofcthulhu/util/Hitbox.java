@@ -1,6 +1,5 @@
 package me.zelha.eyeofcthulhu.util;
 
-import hm.zelha.particlesfx.shapers.ParticleSphere;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.enemies.ParticleEnemy;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
@@ -23,9 +22,8 @@ public class Hitbox {
     private BossBar bar;
     private Slime hitbox;
 
-    public Hitbox(ParticleEnemy enemy, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
+    public Hitbox(ParticleEnemy enemy, Location location, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
-        Location location = ((ParticleSphere) enemy.getModel().getShape(0)).getCenter();
         this.l = location.clone().add(0, -(size / 3.5), 0);
         this.damage = damage;
         this.hitbox = (Slime) location.getWorld().spawnEntity(l, EntityType.SLIME);
