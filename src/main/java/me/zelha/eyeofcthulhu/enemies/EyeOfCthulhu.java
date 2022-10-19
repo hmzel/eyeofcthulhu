@@ -6,16 +6,13 @@ import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LocationSafe;
-import hm.zelha.particlesfx.util.ParticleShapeCompound;
-import me.zelha.eyeofcthulhu.util.BossBar;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-public class EyeOfCthulhu {
+public class EyeOfCthulhu extends ParticleEnemy {
 
     private static final Particle WHITE = new ParticleDust(Color.WHITE, 100, 0.25, 0.25, 0.25, 1).setPureColor(true);
     private static final Particle DIRTY_WHITE = new ParticleDust(Color.fromRGB(255, 255, 200), 75);
@@ -25,36 +22,33 @@ public class EyeOfCthulhu {
     private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.25, 0.25, 0.25, 2);
     private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.25, 0.25, 0.25, 2);
     private static final Particle NONE = new ParticleNull();
-    private final ThreadLocalRandom rng = ThreadLocalRandom.current();
-    private final ParticleShapeCompound eoc = new ParticleShapeCompound();
-    private final Hitbox hitbox;
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, 0, 0, 0);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
-        this.hitbox = new Hitbox(eoc, 7.5, 6, center, 1000, new BossBar(center, "Eye of Cthulhu", 1000));
+        super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
 
         center.add(location);
         //center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
-        eoc.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
+        model.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
 
         for (int i = 0; i < 10; i++) {
-            eoc.addShape(new ParticleLine(tendrilRed, 30,
+            model.addShape(new ParticleLine(tendrilRed, 30,
                     new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
                     new LocationSafe(world, center.getX(), center.getY() + 6.5, center.getZ()))
             );
         }
 
         for (int i = 0; i < 5; i++) {
-            eoc.addShape(new ParticleLine(tendrilRed, 10,
+            model.addShape(new ParticleLine(tendrilRed, 10,
                     new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
                     new LocationSafe(world, center.getX(), center.getY() + 4, center.getZ()))
             );
         }
 
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril = (ParticleLine) eoc.getShape(i + 1);
+            ParticleLine tendril = (ParticleLine) model.getShape(i + 1);
 
             if (i < 5) {
                 tendril.rotateAroundLocation(center, 30, 72 * i, 0);
@@ -74,7 +68,7 @@ public class EyeOfCthulhu {
     }
 
     private void colorizePhaseOne() {
-        ParticleSphere body = (ParticleSphere) eoc.getShape(0);
+        ParticleSphere body = (ParticleSphere) model.getShape(0);
 
         body.addParticle(RED, 0);
         body.addParticle(WHITE, 102);
@@ -235,7 +229,7 @@ public class EyeOfCthulhu {
 
     //assumes colorizePhaseOne has already been ran
     private void colorizePhaseTwo() {
-        ParticleSphere body = (ParticleSphere) eoc.getShape(0);
+        ParticleSphere body = (ParticleSphere) model.getShape(0);
         int removeIndex = body.getSecondaryParticleAmount() - 6;
         int amount = body.getSecondaryParticleAmount();
 
@@ -326,5 +320,15 @@ public class EyeOfCthulhu {
         body.addParticle(NONE, 719);
         body.addParticle(DIRTY_WHITE, 721);
         body.addParticle(NONE, 722);
+    }
+
+    @Override
+    public void onHit(Entity attacker) {
+
+    }
+
+    @Override
+    protected void startAI() {
+
     }
 }
