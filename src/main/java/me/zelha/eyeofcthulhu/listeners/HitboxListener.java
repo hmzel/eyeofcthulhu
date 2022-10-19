@@ -18,6 +18,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+
 public class HitboxListener implements Listener {
 
     private static final List<Hitbox> hitboxes = new ArrayList<>();
@@ -38,7 +40,7 @@ public class HitboxListener implements Listener {
 
         for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
             if (box.sameEntity(entity)) {
-                if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                if (e.getCause() == DamageCause.SUFFOCATION || e.getCause() == DamageCause.DROWNING) {
                     e.setCancelled(true);
                 }
 
