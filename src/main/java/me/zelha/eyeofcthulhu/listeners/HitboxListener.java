@@ -4,10 +4,7 @@ import hm.zelha.particlesfx.particles.ParticleCloud;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Slime;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -27,9 +24,22 @@ public class HitboxListener implements Listener {
 
     @EventHandler
     public void correctDamage(EntityDamageByEntityEvent e) {
+        Entity attacker = e.getDamager();
+        Entity damaged = e.getEntity();
+
         for (Hitbox box : hitboxes) {
-            if (box.sameEntity(e.getDamager())) {
+            if (box.sameEntity(attacker)) {
                 e.setDamage(box.getDamage());
+                return;
+            }
+
+            if (box.sameEntity(damaged)) {
+                if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Entity) {
+                    box.getEnemy().onHit((Entity) ((Projectile) attacker).getShooter());
+                    return;
+                }
+
+                box.getEnemy().onHit(attacker);
             }
         }
     }

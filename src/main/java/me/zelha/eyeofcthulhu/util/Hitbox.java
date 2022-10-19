@@ -105,4 +105,8 @@ public class Hitbox {
     public Slime getSlime() {
         return hitbox;
     }
+
+    public ParticleEnemy getEnemy() {
+        return enemy;
+    }
 }
