@@ -1,7 +1,8 @@
 package me.zelha.eyeofcthulhu.util;
 
-import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import hm.zelha.particlesfx.shapers.ParticleSphere;
 import me.zelha.eyeofcthulhu.Main;
+import me.zelha.eyeofcthulhu.enemies.ParticleEnemy;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import net.minecraft.server.v1_8_R3.EntitySlime;
 import net.minecraft.server.v1_8_R3.NBTTagCompound;
@@ -18,14 +19,15 @@ import javax.annotation.Nullable;
 
 public class Hitbox {
 
-    private final ParticleShapeCompound model;
+    private final ParticleEnemy enemy;
     private final Location l;
     private double damage;
     private BossBar bar;
     private Slime hitbox;
 
-    public Hitbox(ParticleShapeCompound model, double size, double damage, Location location, double maxHealth, @Nullable BossBar bar) {
-        this.model = model;
+    public Hitbox(ParticleEnemy enemy, double size, double damage, double maxHealth, @Nullable BossBar bar) {
+        this.enemy = enemy;
+        Location location = ((ParticleSphere) enemy.getModel().getShape(0)).getCenter();
         this.l = location.clone().add(0, -(size / 3.5), 0);
         this.damage = damage;
         this.bar = bar;
@@ -64,7 +66,7 @@ public class Hitbox {
     }
 
     public void remove() {
-        model.stop();
+        enemy.getModel().stop();
         hitbox.remove();
         HitboxListener.unregisterHitbox(this);
 
@@ -79,7 +81,8 @@ public class Hitbox {
 
     public void setHealth(int health) {
         hitbox.setHealth(health);
-        bar.setHealth(health);
+
+        if (bar != null) bar.setHealth(health);
     }
 
     public void setDamage(double damage) {
