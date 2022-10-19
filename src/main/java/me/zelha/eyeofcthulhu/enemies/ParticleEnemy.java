@@ -59,16 +59,18 @@ public abstract class ParticleEnemy {
         if (target == null) {
             List<Entity> nearbyEntities = (ArrayList<Entity>) center.getWorld().getNearbyEntities(center, 50, 50, 50);
 
-            for (int i = 0; i < nearbyEntities.size(); i++) {
-                Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
+            if (!nearbyEntities.isEmpty()) {
+                for (int i = 0; i < nearbyEntities.size(); i++) {
+                    Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
 
-                if (e instanceof Player) continue;
-                if (e instanceof Slime) continue;
-                if (e instanceof Monster) continue;
-                if (!(e instanceof LivingEntity)) continue;
+                    if (e instanceof Player) continue;
+                    if (e instanceof Slime) continue;
+                    if (e instanceof Monster) continue;
+                    if (!(e instanceof LivingEntity)) continue;
 
-                target = e;
-                break;
+                    target = e;
+                    break;
+                }
             }
         }
 
