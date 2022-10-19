@@ -65,9 +65,10 @@ public class Hitbox {
 
     public void remove() {
         model.stop();
-        bar.remove();
         hitbox.remove();
         HitboxListener.unregisterHitbox(this);
+
+        if (bar != null) bar.remove();
 
         hitbox = null;
     }
