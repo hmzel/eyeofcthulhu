@@ -78,6 +78,20 @@ public abstract class ParticleEnemy {
         this.target = (EntityLiving) ((CraftEntity) target).getHandle();
     }
 
+    protected void damageNearby(Location location, double radius) {
+        for (Entity e : location.getWorld().getNearbyEntities(location, radius, radius, radius)) {
+
+            if (!e.getUniqueId().equals(target.getUniqueID())) {
+                if (e instanceof Player) continue;
+                if (e instanceof Monster) continue;
+                if (e instanceof Slime) continue;
+                if (!(e instanceof LivingEntity)) continue;
+            }
+
+            ((LivingEntity) e).damage(hitbox.getDamage(), hitbox.getSlime());
+        }
+    }
+
     public ParticleShapeCompound getModel() {
         return model;
     }
