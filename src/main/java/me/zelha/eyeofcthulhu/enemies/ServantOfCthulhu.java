@@ -40,6 +40,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         super.hitbox = new Hitbox(this, center, 1, 1, 10, "Servant of Cthulhu", false);
 
         model.addShape(body);
+        tendrilRed.setRadius(32);
 
         for (int i = 0; i < 3; i++) {
             ParticleLine tendril = new ParticleLine(tendrilRed, 4,
