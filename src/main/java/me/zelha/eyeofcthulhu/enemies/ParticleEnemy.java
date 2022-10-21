@@ -20,6 +20,7 @@ public abstract class ParticleEnemy {
     protected final ParticleShapeCompound model = new ParticleShapeCompound();
     protected Hitbox hitbox;
     protected EntityLiving target = null;
+    private BukkitTask despawner;
 
     protected ParticleEnemy() {
     }
@@ -31,6 +32,34 @@ public abstract class ParticleEnemy {
     public abstract void onHit(Entity attacker);
 
     protected abstract void startAI();
+
+    protected void startDespawner(Location location) {
+        despawner = new BukkitRunnable() {
+
+            private final Location l = location.clone();
+
+            @Override
+            public void run() {
+                double closest = 9999;
+
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (!p.getWorld().equals(location.getWorld())) continue;
+
+                    EntityPlayer nmsP = ((CraftPlayer) p).getHandle();
+
+                    l.zero().add(nmsP.locX, nmsP.locY, nmsP.locZ);
+
+                    if (l.distance(location) < closest) {
+                        closest = l.distance(location);
+                    }
+                }
+
+                if (closest > 60) {
+                    hitbox.remove();
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 20);
+    }
 
     protected void findTarget() {
         Location center = ((ParticleSphere) model.getShape(0)).getCenter();
