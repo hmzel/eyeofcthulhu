@@ -8,10 +8,12 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftWither;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Wither;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 public class BossBar {
 
     private final Wither wither;
+    private final BukkitTask task;
     private String display;
     private double health;
 
@@ -33,7 +35,7 @@ public class BossBar {
         tag.setInt("Silent", 1);
         nmsWither.f(tag);
 
-        new BukkitRunnable() {
+        task = new BukkitRunnable() {
             @Override
             public void run() {
                 if (health <= 0) {
@@ -50,8 +52,7 @@ public class BossBar {
     }
 
     public void remove() {
-        health = 0;
-
+        task.cancel();
         wither.remove();
     }
 
