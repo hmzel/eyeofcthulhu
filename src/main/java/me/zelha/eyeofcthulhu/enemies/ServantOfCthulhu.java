@@ -25,6 +25,13 @@ public class ServantOfCthulhu extends ParticleEnemy {
     private static final Particle RED = new ParticleDust(Color.RED, 85);
     private static final Particle PURPLE = new ParticleDust(Color.PURPLE);
 
+    static {
+        WHITE.setRadius(32);
+        BLACK.setRadius(32);
+        RED.setRadius(32);
+        PURPLE.setRadius(32);
+    }
+
     public ServantOfCthulhu(Location location) {
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
