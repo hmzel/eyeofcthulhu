@@ -2,13 +2,18 @@ package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
+import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.*;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +32,11 @@ public abstract class ParticleEnemy {
 
     public void target(Entity e) {
         target = (EntityLiving) ((CraftEntity) e).getHandle();
+    }
+
+    public void onDeath() {
+        model.stop();
+        despawner.cancel();
     }
 
     public abstract void onHit(Entity attacker);

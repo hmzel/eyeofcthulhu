@@ -68,7 +68,7 @@ public class Hitbox {
     }
 
     public void remove() {
-        enemy.getModel().stop();
+        enemy.onDeath();
         hitbox.remove();
         HitboxListener.unregisterHitbox(this);
 
