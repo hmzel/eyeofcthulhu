@@ -64,7 +64,7 @@ public abstract class ParticleEnemy {
                     }
                 }
 
-                if (closest > 60) {
+                if (closest > 100) {
                     hitbox.remove();
                 }
             }
@@ -99,7 +99,13 @@ public abstract class ParticleEnemy {
 
             if (!nearbyEntities.isEmpty()) {
                 for (int i = 0; i < nearbyEntities.size(); i++) {
-                    Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
+                    Entity e;
+
+                    if (nearbyEntities.size() > 1) {
+                        e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
+                    } else {
+                        e = nearbyEntities.get(0);
+                    }
 
                     if (e instanceof Player) continue;
                     if (e instanceof Slime) continue;
