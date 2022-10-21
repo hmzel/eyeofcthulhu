@@ -96,6 +96,12 @@ public class EyeOfCthulhu extends ParticleEnemy {
         hoverAI(100);
     }
 
+    @Override
+    public void onDeath() {
+        super.onDeath();
+        currentAI.cancel();
+    }
+
     private void hoverAI(int time) {
         if (currentAI != null) currentAI.cancel();
 
