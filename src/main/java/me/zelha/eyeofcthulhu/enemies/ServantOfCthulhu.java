@@ -70,6 +70,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         body.addParticle(BLACK, 46);
 
         startAI();
+        startDespawner(center);
     }
 
     @Override

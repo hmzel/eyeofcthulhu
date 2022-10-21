@@ -5,14 +5,23 @@ import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.LocationSafe;
+import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 public class EyeOfCthulhu extends ParticleEnemy {
+
+    //TODO implement difficulty-based changes
+    // EOC gradually speeds up as it dies
+    // in hard mode the boss gains more health depending on the amount of players nearby when summoned
 
     private static final Particle WHITE = new ParticleDust(Color.WHITE, 100, 0.25, 0.25, 0.25, 1).setPureColor(true);
     private static final Particle DIRTY_WHITE = new ParticleDust(Color.fromRGB(255, 255, 200), 75);
@@ -22,14 +31,19 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.25, 0.25, 0.25, 2);
     private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.25, 0.25, 0.25, 2);
     private static final Particle NONE = new ParticleNull();
+    private final Location locationHelper;
+    private final Vector vectorHelper = new Vector(0, 0, 0);
+    private BukkitTask currentAI = null;
+    private boolean phaseTwo = false;
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
-        LocationSafe center = new LocationSafe(world, 0, 0, 0);
+        LocationSafe center = (LocationSafe) new LocationSafe(world, 0, 0, 0).add(location);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
         super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
+        this.locationHelper = center.cloneToLocation();
 
-        center.add(location);
+        hitbox.setDefense(6);
         //center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
         model.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
 
@@ -65,11 +79,104 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 l.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2)
             );
         }
+
+        startAI();
+        startDespawner(center);
+    }
+
+    @Override
+    public void onHit(Entity attacker) {
+
+    }
+
+    @Override
+    protected void startAI() {
+        colorizePhaseOne();
+        findTarget();
+        hoverAI(100);
+    }
+
+    private void hoverAI(int time) {
+        if (currentAI != null) currentAI.cancel();
+
+        currentAI = new BukkitRunnable() {
+
+            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private final int servantSpawn = ((time - 10) / (3 + rng.nextInt(1)));
+            private int i = 0;
+
+            @Override
+            public void run() {
+                if (target == null) {
+                    findTarget();
+                    return;
+                }
+
+                if (i % servantSpawn == 0 && !phaseTwo) {
+                    new ServantOfCthulhu(location);
+                }
+
+                locationHelper.zero().add(target.locX, target.locY + (target.length + 5), target.locZ);
+                LVMath.subtractToVector(vectorHelper, locationHelper, location);
+                vectorHelper.normalize().multiply(0.5);
+                model.move(vectorHelper);
+                locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                model.face(locationHelper);
+                damageNearby(location, 1);
+
+                if (i == time) {
+                    rushAI(100,0.5);
+                }
+
+                i++;
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    private void rushAI(int time, double speed) {
+        if (currentAI != null) currentAI.cancel();
+
+        currentAI = new BukkitRunnable() {
+
+            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private int i = 0;
+
+            @Override
+            public void run() {
+                if (target == null || !target.valid || !target.isAlive()) {
+                    findTarget();
+                    return;
+                }
+
+                locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                LVMath.subtractToVector(vectorHelper, locationHelper, location);
+                locationHelper.add(vectorHelper);
+                vectorHelper.normalize().multiply(speed);
+                model.move(vectorHelper);
+                model.face(locationHelper);
+                damageNearby(location, 3);
+
+                if (i == time) {
+                    hoverAI(100);
+                }
+
+                i++;
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    private void switchPhase() {
+        if (currentAI != null) currentAI.cancel();
+
+        phaseTwo = true;
+
     }
 
     private void colorizePhaseOne() {
         ParticleSphere body = (ParticleSphere) model.getShape(0);
 
+        //before you judge me, its either this or incomprehensible math that would take me days to come up with.
+        //pick your poison
         body.addParticle(RED, 0);
         body.addParticle(WHITE, 102);
         body.addParticle(RED, 107);
@@ -320,15 +427,5 @@ public class EyeOfCthulhu extends ParticleEnemy {
         body.addParticle(NONE, 719);
         body.addParticle(DIRTY_WHITE, 721);
         body.addParticle(NONE, 722);
-    }
-
-    @Override
-    public void onHit(Entity attacker) {
-
-    }
-
-    @Override
-    protected void startAI() {
-
     }
 }
