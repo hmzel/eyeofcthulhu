@@ -40,6 +40,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
         World world = location.getWorld();
         LocationSafe center = (LocationSafe) new LocationSafe(world, 0, 0, 0).add(location);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
+        ParticleShapeCompound tendrils = new ParticleShapeCompound();
         super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
         this.locationHelper = center.cloneToLocation();
 
@@ -48,21 +49,21 @@ public class EyeOfCthulhu extends ParticleEnemy {
         model.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
 
         for (int i = 0; i < 10; i++) {
-            model.addShape(new ParticleLine(tendrilRed, 30,
+            tendrils.addShape(new ParticleLine(tendrilRed, 30,
                     new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
                     new LocationSafe(world, center.getX(), center.getY() + 6.5, center.getZ()))
             );
         }
 
         for (int i = 0; i < 5; i++) {
-            model.addShape(new ParticleLine(tendrilRed, 10,
+            tendrils.addShape(new ParticleLine(tendrilRed, 10,
                     new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
                     new LocationSafe(world, center.getX(), center.getY() + 4, center.getZ()))
             );
         }
 
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril = (ParticleLine) model.getShape(i + 1);
+            ParticleLine tendril = (ParticleLine) tendrils.getShape(i);
 
             if (i < 5) {
                 tendril.rotateAroundLocation(center, 30, 72 * i, 0);
@@ -80,6 +81,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
             );
         }
 
+        model.addShape(tendrils);
         startAI();
         startDespawner(center);
     }

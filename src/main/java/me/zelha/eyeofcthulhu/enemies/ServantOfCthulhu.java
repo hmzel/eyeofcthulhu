@@ -6,6 +6,7 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.LocationSafe;
+import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
@@ -36,6 +37,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
+        ParticleShapeCompound tendrils = new ParticleShapeCompound();
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
         super.hitbox = new Hitbox(this, center, 1, 1, 10, "Servant of Cthulhu", false);
 
@@ -48,7 +50,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     new LocationSafe(world, center.getX(), center.getY() + 1, center.getZ())
             );
 
-            model.addShape(tendril);
+            tendrils.addShape(tendril);
             tendril.rotateAroundLocation(center, 20, 120 * i, 0);
             tendril.rotate(20, 120 * i, 0);
             tendril.setMechanic((particle, l, vector) ->
@@ -70,6 +72,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         body.addParticle(PURPLE, 34);
         body.addParticle(BLACK, 46);
 
+        model.addShape(tendrils);
         startAI();
         startDespawner(center);
     }
