@@ -112,7 +112,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 LVMath.subtractToVector(vHelper, l, body.getCenter());
                 vHelper.normalize().multiply(0.2);
                 model.move(vHelper);
-                model.face(l);
+                faceAroundBody(l);
                 damageNearby(body.getCenter(), 1);
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);

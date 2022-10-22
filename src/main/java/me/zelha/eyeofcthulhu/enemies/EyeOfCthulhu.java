@@ -7,6 +7,7 @@ import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.LocationSafe;
+import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
@@ -129,7 +130,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 vectorHelper.normalize().multiply(0.5);
                 model.move(vectorHelper);
                 locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
-                model.face(locationHelper);
+                faceAroundBody(locationHelper);
                 damageNearby(location, 1);
 
                 if (i == time) {
@@ -164,7 +165,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                     LVMath.subtractToVector(vectorHelper, locationHelper, location);
                     vectorHelper.normalize().multiply(20D / dashTime * 2);
-                    model.face(locationHelper);
+                    faceAroundBody(locationHelper);
 
                     if (i != 0) {
                         i2 = 1;
@@ -177,7 +178,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                 if (waiting) {
                     locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
-                    model.face(locationHelper);
+                    faceAroundBody(locationHelper);
                 } else {
                     model.move(vectorHelper);
                     vectorHelper.multiply(0.95);
