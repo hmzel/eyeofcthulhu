@@ -23,13 +23,13 @@ public class EyeOfCthulhu extends ParticleEnemy {
     // EOC gradually speeds up as it dies
     // in hard mode the boss gains more health depending on the amount of players nearby when summoned
 
-    private static final Particle WHITE = new ParticleDust(Color.WHITE, 100, 0.25, 0.25, 0.25, 1).setPureColor(true);
+    private static final Particle WHITE = new ParticleDust(Color.WHITE, 100, 0.2, 0.2, 0.2, 1).setPureColor(true);
     private static final Particle DIRTY_WHITE = new ParticleDust(Color.fromRGB(255, 255, 200), 75);
-    private static final Particle BLACK = new ParticleDust(Color.BLACK, 100, 0.25, 0.25, 0.25, 2);
-    private static final Particle GRAY = new ParticleDust(Color.GRAY, 35, 0.25, 0.25, 0.25, 2);
-    private static final Particle RED = new ParticleDust(Color.RED, 85, 0.25, 0.25, 0.25, 1);
-    private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.25, 0.25, 0.25, 2);
-    private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.25, 0.25, 0.25, 2);
+    private static final Particle BLACK = new ParticleDust(Color.BLACK, 100, 0.2, 0.2, 0.2, 2);
+    private static final Particle GRAY = new ParticleDust(Color.GRAY, 35, 0.2, 0.2, 0.2, 2);
+    private static final Particle RED = new ParticleDust(Color.RED, 85, 0.2, 0.2, 0.2, 1);
+    private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
+    private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
     private static final Particle NONE = new ParticleNull();
     private final Location locationHelper;
     private final Vector vectorHelper = new Vector(0, 0, 0);
