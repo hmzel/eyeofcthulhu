@@ -119,7 +119,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
 
                 if (i % servantSpawn == 0 && !phaseTwo) {
-                    new ServantOfCthulhu(location);
+                    //new ServantOfCthulhu(location);
                 }
 
                 locationHelper.zero().add(target.locX, target.locY + (target.length + 5), target.locZ);
@@ -131,7 +131,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 1);
 
                 if (i == time) {
-                    rushAI(100,0.5);
+                    rushAI(200,3, 20);
                 }
 
                 i++;
@@ -139,13 +139,17 @@ public class EyeOfCthulhu extends ParticleEnemy {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
-    private void rushAI(int time, double speed) {
+    private void rushAI(int time, double dashes, int wait) {
         if (currentAI != null) currentAI.cancel();
 
         currentAI = new BukkitRunnable() {
 
             private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private final int dashTime = (int) Math.ceil(((time - (wait * dashes)) / dashes) + 1);
+            private final int waitTime = wait + 1;
             private int i = 0;
+            private int i2 = 1;
+            private boolean waiting = false;
 
             @Override
             public void run() {
@@ -154,12 +158,29 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
-                LVMath.subtractToVector(vectorHelper, locationHelper, location);
-                locationHelper.add(vectorHelper);
-                vectorHelper.normalize().multiply(speed);
-                model.move(vectorHelper);
-                model.face(locationHelper);
+                if (i == 0 || (i2 % dashTime == 0 && !waiting)) {
+                    locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                    LVMath.subtractToVector(vectorHelper, locationHelper, location);
+                    vectorHelper.normalize().multiply(20D / dashTime * 2);
+                    model.face(locationHelper);
+
+                    if (i != 0) {
+                        i2 = 1;
+                        waiting = true;
+                    }
+                } else if (waiting && i2 % waitTime == 0) {
+                    i2 = 1;
+                    waiting = false;
+                }
+
+                if (waiting) {
+                    locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                    model.face(locationHelper);
+                } else {
+                    model.move(vectorHelper);
+                    vectorHelper.multiply(0.95);
+                }
+
                 damageNearby(location, 3);
 
                 if (i == time) {
@@ -167,6 +188,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
 
                 i++;
+                i2++;
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
