@@ -43,15 +43,18 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
-        LocationSafe center = (LocationSafe) new LocationSafe(world, 0, 0, 0).add(location);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
+        LocationSafe center = new LocationSafe(world, 0, 0, 0);
+
+        center.add(location);
+        center.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
+
         ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
         super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
         this.locationHelper = center.cloneToLocation();
 
         hitbox.setDefense(6);
-        center.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
         model.addShape(body);
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);

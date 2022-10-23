@@ -73,7 +73,7 @@ public abstract class ParticleEnemy {
                     hitbox.remove();
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 0, 20);
+        }.runTaskTimer(Main.getInstance(), 400, 20);
     }
 
     protected void findTarget(double radius) {
