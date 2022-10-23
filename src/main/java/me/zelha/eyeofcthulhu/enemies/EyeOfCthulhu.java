@@ -5,9 +5,11 @@ import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.shapers.parents.Shape;
 import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Color;
@@ -93,14 +95,16 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     @Override
     public void onHit(Entity attacker) {
-
+        if (hitbox.getSlime().getHealth() <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
+            switchPhase();
+        }
     }
 
     @Override
     protected void startAI() {
         colorizePhaseOne();
         findTarget();
-        hoverAI(100);
+        hoverAI(200);
     }
 
     @Override
@@ -204,7 +208,38 @@ public class EyeOfCthulhu extends ParticleEnemy {
         if (currentAI != null) currentAI.cancel();
 
         phaseTwo = true;
+        currentAI = new BukkitRunnable() {
 
+            private final ParticleSphere body = (ParticleSphere) model.getShape(0);
+            private final Shape tendrils = model.getShape(1);
+            private int i = 1;
+            private double inc = 0.75;
+
+            @Override
+            public void run() {
+                tendrils.rotateAroundLocation(body.getCenter(), inc, 0, 0);
+                tendrils.rotate(inc, 0, 0);
+                body.rotate(inc, 0, 0);
+
+                if (i == 50) {
+                    colorizePhaseTwo();
+                    hitbox.setDefense(0);
+                    hitbox.setDamage(9);
+                }
+
+                if (i == 100) {
+                    hoverAI(60);
+                }
+
+                i++;
+
+                if (i <= 50) {
+                    inc += 0.75;
+                } else {
+                    inc -= 0.75;
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
     private void colorizePhaseOne() {
