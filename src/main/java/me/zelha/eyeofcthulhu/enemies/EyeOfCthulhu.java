@@ -195,7 +195,11 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 3);
 
                 if (i == time) {
-                    hoverAI(200);
+                    if (phaseTwo) {
+                        hoverAI(60);
+                    } else {
+                        hoverAI(200);
+                    }
                 }
 
                 i++;
