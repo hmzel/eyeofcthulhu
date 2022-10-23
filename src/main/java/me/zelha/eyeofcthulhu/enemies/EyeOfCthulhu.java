@@ -32,6 +32,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
     private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
     private static final Particle NONE = new ParticleNull();
+    //i messed up while making phase 2's color and im Not Going To Redo It.
+    private final Rotation teethFixer = new Rotation(0, 83, 0);
     private final Location locationHelper;
     private final Vector vectorHelper = new Vector(0, 0, 0);
     private BukkitTask currentAI = null;
@@ -42,12 +44,14 @@ public class EyeOfCthulhu extends ParticleEnemy {
         LocationSafe center = (LocationSafe) new LocationSafe(world, 0, 0, 0).add(location);
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
+        ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
         super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
         this.locationHelper = center.cloneToLocation();
 
         hitbox.setDefense(6);
         //center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
-        model.addShape(new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750));
+        model.addShape(body);
+        body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
 
         for (int i = 0; i < 10; i++) {
             tendrils.addShape(new ParticleLine(tendrilRed, 30,
