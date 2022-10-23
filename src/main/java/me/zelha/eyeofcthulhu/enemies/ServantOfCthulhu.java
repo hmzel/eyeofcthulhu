@@ -88,7 +88,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
 
     @Override
     protected void startAI() {
-        findTarget();
+        findTarget(25);
 
         new BukkitRunnable() {
 
@@ -104,7 +104,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 }
 
                 if (target == null || !target.valid || !target.isAlive()) {
-                    findTarget();
+                    findTarget(25);
                     return;
                 }
 

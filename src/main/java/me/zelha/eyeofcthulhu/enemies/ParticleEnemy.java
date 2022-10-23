@@ -76,7 +76,7 @@ public abstract class ParticleEnemy {
         }.runTaskTimer(Main.getInstance(), 0, 20);
     }
 
-    protected void findTarget() {
+    protected void findTarget(double radius) {
         Location center = ((ParticleSphere) model.getShape(0)).getCenter();
         Entity target = null;
 
@@ -95,12 +95,12 @@ public abstract class ParticleEnemy {
             }
         }
 
-        if (target != null && target.getLocation().distance(center) > 25) {
+        if (target != null && target.getLocation().distance(center) > radius) {
             target = null;
         }
 
         if (target == null) {
-            List<Entity> nearbyEntities = (ArrayList<Entity>) center.getWorld().getNearbyEntities(center, 50, 50, 50);
+            List<Entity> nearbyEntities = (ArrayList<Entity>) center.getWorld().getNearbyEntities(center, radius, radius, radius);
 
             if (!nearbyEntities.isEmpty()) {
                 for (int i = 0; i < nearbyEntities.size(); i++) {

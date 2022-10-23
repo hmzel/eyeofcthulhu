@@ -51,9 +51,10 @@ public class EyeOfCthulhu extends ParticleEnemy {
         this.locationHelper = center.cloneToLocation();
 
         hitbox.setDefense(6);
-        //center.add(rng.nextInt(100) - 50, 500, rng.nextInt(100) - 50);
+        center.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
         model.addShape(body);
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
+        findTarget(200);
 
         for (int i = 0; i < 10; i++) {
             tendrils.addShape(new ParticleLine(tendrilRed, 30,
@@ -103,7 +104,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
     @Override
     protected void startAI() {
         colorizePhaseOne();
-        findTarget();
+        findTarget(50);
         hoverAI(200);
     }
 
@@ -125,12 +126,12 @@ public class EyeOfCthulhu extends ParticleEnemy {
             @Override
             public void run() {
                 if (target == null) {
-                    findTarget();
+                    findTarget(50);
                     return;
                 }
 
                 if (i % servantSpawn == 0 && !phaseTwo) {
-                    //new ServantOfCthulhu(location);
+                    new ServantOfCthulhu(location);
                 }
 
                 locationHelper.zero().add(target.locX, target.locY + (target.length + 7.5), target.locZ);
@@ -165,7 +166,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
             @Override
             public void run() {
                 if (target == null || !target.valid || !target.isAlive()) {
-                    findTarget();
+                    findTarget(50);
                     return;
                 }
 
