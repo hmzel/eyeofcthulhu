@@ -125,9 +125,9 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     //new ServantOfCthulhu(location);
                 }
 
-                locationHelper.zero().add(target.locX, target.locY + (target.length + 5), target.locZ);
+                locationHelper.zero().add(target.locX, target.locY + (target.length + 7.5), target.locZ);
                 LVMath.subtractToVector(vectorHelper, locationHelper, location);
-                vectorHelper.normalize().multiply(0.5);
+                vectorHelper.normalize().multiply(0.25);
                 model.move(vectorHelper);
                 locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                 faceAroundBody(locationHelper);
@@ -187,7 +187,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 3);
 
                 if (i == time) {
-                    hoverAI(100);
+                    hoverAI(200);
                 }
 
                 i++;
