@@ -2,13 +2,13 @@ package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.shapers.parents.Shape;
+import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -127,8 +127,27 @@ public abstract class ParticleEnemy {
     protected void faceAroundBody(Location l) {
         ParticleSphere body = (ParticleSphere) model.getShape(0);
         Shape tendrils = model.getShape(1);
+        double[] direction = ParticleSFX.getDirection(l, body.getCenter());
+        double pitchInc, yawInc;
+        double increase = 15;
 
-        body.face(l);
+        if (body.getPitch() + increase <= direction[0]) {
+            pitchInc = increase;
+        } else if (body.getPitch() - increase >= direction[0]) {
+            pitchInc = -increase;
+        } else {
+            pitchInc = direction[0] - body.getPitch();
+        }
+
+        if (body.getYaw() + increase <= direction[1]) {
+            yawInc = increase;
+        } else if (body.getYaw() - increase >= direction[1]) {
+            yawInc = -increase;
+        } else {
+            yawInc = direction[1] - body.getYaw();
+        }
+
+        body.rotate(pitchInc, yawInc, 0);
         tendrils.setAroundRotation(body.getCenter(), body.getPitch(), body.getYaw(), 0);
         tendrils.setRotation(body.getPitch(), body.getYaw(), 0);
     }
