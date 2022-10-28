@@ -94,6 +94,10 @@ public class HitboxListener implements Listener {
         hitboxes.remove(box);
     }
 
+    public static List<Hitbox> getHitboxes() {
+        return hitboxes;
+    }
+
     public static void onDisable() {
         for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
             box.remove();

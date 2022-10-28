@@ -2,6 +2,7 @@ package me.zelha.eyeofcthulhu.listeners;
 
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.enemies.EyeOfCthulhu;
+import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,6 +39,17 @@ public class SummonItemListener implements Listener {
         if (p.getWorld().getTime() < 12300 || p.getWorld().getTime() > 23850) return;
 
         Location l = p.getLocation();
+
+        for (Hitbox box : HitboxListener.getHitboxes()) {
+            if (!box.getSlime().getName().equals("Eye of Cthulhu")) continue;
+
+            double distance = box.getSlime().getLocation().distance(l);
+
+            if (!Double.isNaN(distance) && distance > 1000) continue;
+
+            return;
+        }
+
         EyeOfCthulhu eye = new EyeOfCthulhu(l);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -47,7 +59,7 @@ public class SummonItemListener implements Listener {
             if (Double.isNaN(distance)) continue;
 
             player.sendMessage("§5Eye of Cthulhu has awoken!");
-            player.playSound(eye.getLocation(), Sound.ENDERDRAGON_GROWL, 100, 1);
+            player.playSound(eye.getLocation(), Sound.ENDERDRAGON_GROWL, 100, 1.5f);
         }
 
         if (item.getAmount() == 1) {
