@@ -4,9 +4,5 @@ main: me.zelha.eyeofcthulhu.Main
 api-version: 1.8.9
 authors: [ zel ]
 commands:
-  add:
-    usage: /<command> (color) (int)
-  remove:
-    usage: /<command>
-  sout:
+  giveeye:
     usage: /<command>
