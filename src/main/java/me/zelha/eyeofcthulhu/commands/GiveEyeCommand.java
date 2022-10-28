@@ -1,14 +1,10 @@
 package me.zelha.eyeofcthulhu.commands;
 
-import org.bukkit.Material;
+import me.zelha.eyeofcthulhu.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-
-import java.util.Arrays;
 
 public class GiveEyeCommand implements CommandExecutor {
     @Override
@@ -20,18 +16,7 @@ public class GiveEyeCommand implements CommandExecutor {
             return true;
         }
 
-        ItemStack item = new ItemStack(Material.SKULL_ITEM, 1, (byte) 3);
-        SkullMeta meta = (SkullMeta) item.getItemMeta();
-
-        meta.setOwner("HalfCourt93");
-        meta.setDisplayName("§fSuspicious Looking Eye");
-        meta.setLore(Arrays.asList(
-                "§9Consumable",
-                "§9Summons the Eye of Cthulhu"
-        ));
-        item.setItemMeta(meta);
-
-        ((Player) sender).getInventory().addItem(item);
+        ((Player) sender).getInventory().addItem(Main.getSummonItem());
 
         return true;
     }
