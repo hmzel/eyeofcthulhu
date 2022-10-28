@@ -17,7 +17,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class SummoningListener implements Listener {
+public class LootTableListener implements Listener {
 
     private final ThreadLocalRandom rng = ThreadLocalRandom.current();
 
@@ -53,7 +53,9 @@ public class SummoningListener implements Listener {
     private void addSummoningItem(InventoryHolder invHolder) {
         Inventory inv = invHolder.getInventory();
 
-        for (int i = 0; i < inv.getSize(); i++) {
+        //assumes the chest isn't full because that never happens in naturally genned chests
+        while (true) {
+            int i = rng.nextInt(inv.getSize());
             ItemStack item = inv.getItem(i);
 
             if (item == null || item.getType() == Material.AIR) {
