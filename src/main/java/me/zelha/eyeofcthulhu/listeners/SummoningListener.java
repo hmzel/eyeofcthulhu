@@ -28,12 +28,11 @@ public class SummoningListener implements Listener {
             if (rng.nextInt(5) != 1) return;
 
             block.setMetadata("WillHaveEye", new FixedMetadataValue(Main.getInstance(), true));
-
-            System.out.println("works " + block.getLocation());
         }
 
         for (Entity entity : e.getChunk().getEntities()) {
             if (!(entity instanceof StorageMinecart)) continue;
+            if (rng.nextInt(5) != 1) return;
 
             addSummoningItem((StorageMinecart) entity);
         }
