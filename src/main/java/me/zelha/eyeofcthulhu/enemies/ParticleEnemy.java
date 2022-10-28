@@ -185,4 +185,8 @@ public abstract class ParticleEnemy {
     public ParticleShapeCompound getModel() {
         return model;
     }
+
+    public Location getLocation() {
+        return ((ParticleSphere) model.getShape(0)).getCenter();
+    }
 }

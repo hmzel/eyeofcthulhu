@@ -3,6 +3,7 @@ package me.zelha.eyeofcthulhu;
 import me.zelha.eyeofcthulhu.commands.GiveEyeCommand;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.listeners.LootTableListener;
+import me.zelha.eyeofcthulhu.listeners.SummonItemListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +36,7 @@ public final class Main extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
         Bukkit.getPluginManager().registerEvents(new LootTableListener(), this);
+        Bukkit.getPluginManager().registerEvents(new SummonItemListener(), this);
         getCommand("giveeye").setExecutor(new GiveEyeCommand());
     }
 
