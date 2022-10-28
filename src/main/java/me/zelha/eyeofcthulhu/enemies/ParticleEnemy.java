@@ -78,7 +78,7 @@ public abstract class ParticleEnemy {
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (!center.getWorld().equals(p.getWorld())) continue;
-            if (p.getGameMode() != GameMode.SURVIVAL) continue;
+            //if (p.getGameMode() != GameMode.SURVIVAL) continue;
 
             if (target == null) {
                 target = p;
@@ -130,21 +130,38 @@ public abstract class ParticleEnemy {
         double[] direction = ParticleSFX.getDirection(l, body.getCenter());
         double pitchInc, yawInc;
         double increase = 15;
+        double pitch = body.getPitch();
+        double yaw = body.getYaw();
+        double wantedPitch = direction[0];
+        double wantedYaw = direction[1];
+        double difference = Math.abs(yaw - wantedYaw);
 
-        if (body.getPitch() + increase <= direction[0]) {
+        if (pitch + increase <= wantedPitch) {
             pitchInc = increase;
-        } else if (body.getPitch() - increase >= direction[0]) {
+        } else if (pitch - increase >= wantedPitch) {
             pitchInc = -increase;
         } else {
-            pitchInc = direction[0] - body.getPitch();
+            pitchInc = wantedPitch - pitch;
         }
 
-        if (body.getYaw() + increase <= direction[1]) {
+        if (yaw + (360 - wantedYaw) < difference) {
+            yawInc = -increase;
+        } else if (wantedYaw + (360 - yaw) < difference) {
             yawInc = increase;
-        } else if (body.getYaw() - increase >= direction[1]) {
+        } else if (yaw + increase <= wantedYaw) {
+            yawInc = increase;
+        } else if (yaw - increase >= wantedYaw) {
             yawInc = -increase;
         } else {
-            yawInc = direction[1] - body.getYaw();
+            yawInc = wantedYaw - yaw;
+        }
+
+        if (yaw + yawInc > 360) {
+            yawInc = yawInc - 360;
+        }
+
+        if (yaw + yawInc < 0) {
+            yawInc = yawInc + 360;
         }
 
         body.rotate(pitchInc, yawInc, 0);
