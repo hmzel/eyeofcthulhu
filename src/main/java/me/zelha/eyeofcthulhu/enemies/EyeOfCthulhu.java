@@ -133,12 +133,13 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                locationHelper.zero().add(target.locX, target.locY + (target.length + 7.5), target.locZ);
+                locationHelper.zero().add(target.locX, target.locY, target.locZ);
 
                 if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25) {
                     new ServantOfCthulhu(location);
                 }
 
+                locationHelper.add(0, target.length + 7.5, 0);
                 LVMath.subtractToVector(vectorHelper, locationHelper, location);
                 vectorHelper.normalize().multiply(0.25);
                 model.move(vectorHelper);
@@ -147,7 +148,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 1);
 
                 if (i == time) {
-                    rushAI(200,3, 20);
+                    rushAI(200, 3, 20);
                 }
 
                 i++;
