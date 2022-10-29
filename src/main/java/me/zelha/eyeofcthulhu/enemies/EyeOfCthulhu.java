@@ -238,6 +238,13 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
 
                 if (i == 100) {
+                    //so that faceAroundBody doesn't get messed up
+                    while (body.getPitch() > 90) {
+                        tendrils.rotateAroundLocation(body.getCenter(), -90, 0, 0);
+                        tendrils.rotate(-90, 0, 0);
+                        body.rotate(-90, 0, 0);
+                    }
+
                     hoverAI(60);
                 }
 
