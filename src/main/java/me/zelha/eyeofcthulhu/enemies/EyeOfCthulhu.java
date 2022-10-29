@@ -12,13 +12,20 @@ import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class EyeOfCthulhu extends ParticleEnemy {
 
@@ -34,6 +41,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
     private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
     private static final Particle NONE = new ParticleNull();
+    private final Map<UUID, Double> damageMap = new HashMap<>();
     //i messed up while making phase 2's color and im Not Going To Redo It.
     private final Rotation teethFixer = new Rotation(0, 83, 0);
     private final Location locationHelper;
@@ -98,9 +106,28 @@ public class EyeOfCthulhu extends ParticleEnemy {
     }
 
     @Override
-    public void onHit(Entity attacker) {
-        if (hitbox.getSlime().getHealth() <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
+    public void onHit(Entity attacker, double damage) {
+        if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
             switchPhase();
+        }
+
+        if (!(attacker instanceof Player)) return;
+
+        damage += damageMap.getOrDefault(attacker.getUniqueId(), 0D);
+
+        damageMap.put(attacker.getUniqueId(), damage);
+
+        for (UUID uuid : damageMap.keySet()) {
+            if (Bukkit.getPlayer(uuid) == null) {
+                damageMap.remove(uuid);
+                continue;
+            }
+
+            if (damageMap.get(uuid) > 100) {
+                target = ((CraftLivingEntity) Bukkit.getPlayer(uuid)).getHandle();
+
+                damageMap.clear();
+            }
         }
     }
 

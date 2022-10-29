@@ -78,7 +78,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
     }
 
     @Override
-    public void onHit(Entity attacker) {
+    public void onHit(Entity attacker, double damage) {
         if (attacker instanceof Player && ((Player) attacker).getGameMode() != GameMode.SURVIVAL) {
             return;
         }

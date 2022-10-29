@@ -40,7 +40,7 @@ public abstract class ParticleEnemy {
         despawner.cancel();
     }
 
-    public abstract void onHit(Entity attacker);
+    public abstract void onHit(Entity attacker, double damage);
 
     protected abstract void startAI();
 
