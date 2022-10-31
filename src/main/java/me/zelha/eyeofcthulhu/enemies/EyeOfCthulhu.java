@@ -67,22 +67,22 @@ public class EyeOfCthulhu extends ParticleEnemy {
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);
 
-        for (int i = 0; i < 10; i++) {
-            tendrils.addShape(new ParticleLine(tendrilRed, 30,
-                    new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
-                    new LocationSafe(world, center.getX(), center.getY() + 6.5, center.getZ()))
-            );
-        }
-
-        for (int i = 0; i < 5; i++) {
-            tendrils.addShape(new ParticleLine(tendrilRed, 10,
-                    new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
-                    new LocationSafe(world, center.getX(), center.getY() + 4, center.getZ()))
-            );
-        }
-
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril = (ParticleLine) tendrils.getShape(i);
+            ParticleLine tendril;
+
+            if (i < 10) {
+                tendril = new ParticleLine(tendrilRed, 30,
+                        new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
+                        new LocationSafe(world, center.getX(), center.getY() + 6.5, center.getZ())
+                );
+            } else {
+                tendril = new ParticleLine(tendrilRed, 10,
+                        new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
+                        new LocationSafe(world, center.getX(), center.getY() + 4, center.getZ())
+                );
+            }
+
+            tendrils.addShape(tendril);
 
             if (i < 5) {
                 tendril.rotateAroundLocation(center, 30, 72 * i, 0);

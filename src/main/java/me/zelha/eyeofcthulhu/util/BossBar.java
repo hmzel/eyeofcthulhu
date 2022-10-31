@@ -24,7 +24,9 @@ public class BossBar {
         EntityWither nmsWither = ((CraftWither) wither).getHandle();
         NBTTagCompound tag = nmsWither.getNBTTag();
 
-        if (tag == null) tag = new NBTTagCompound();
+        if (tag == null) {
+            tag = new NBTTagCompound();
+        }
 
         wither.setMaxHealth(maxHealth);
         wither.setCustomName(display);
@@ -63,7 +65,9 @@ public class BossBar {
     }
 
     public void setHealth(double health) {
-        if (health > wither.getMaxHealth()) wither.setMaxHealth(health);
+        if (health > wither.getMaxHealth()) {
+            wither.setMaxHealth(health);
+        }
 
         this.health = health;
     }

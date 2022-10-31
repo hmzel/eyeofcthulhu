@@ -80,19 +80,19 @@ public abstract class ParticleEnemy {
             if (!center.getWorld().equals(p.getWorld())) continue;
             //if (p.getGameMode() != GameMode.SURVIVAL) continue;
 
+            double distance = p.getLocation().distance(center);
+
+            if (distance > radius) continue;
+
             if (target == null) {
                 target = p;
 
                 continue;
             }
 
-            if (p.getLocation().distance(center) < target.getLocation().distance(center)) {
+            if (distance < target.getLocation().distance(center)) {
                 target = p;
             }
-        }
-
-        if (target != null && target.getLocation().distance(center) > radius) {
-            target = null;
         }
 
         if (target == null) {
@@ -171,8 +171,9 @@ public abstract class ParticleEnemy {
 
     protected void damageNearby(Location location, double radius) {
         for (Entity e : location.getWorld().getNearbyEntities(location, radius, radius, radius)) {
+            if (e instanceof Player) continue;
+
             if (!e.getUniqueId().equals(target.getUniqueID())) {
-                if (e instanceof Player) continue;
                 if (e instanceof Monster) continue;
                 if (e instanceof Slime) continue;
                 if (!(e instanceof LivingEntity)) continue;

@@ -60,7 +60,9 @@ public class Hitbox {
 
                 hitbox.teleport(l.zero().add(location).add(0, -(size / 3.5), 0));
 
-                if (bar != null) bar.setHealth(hitbox.getHealth());
+                if (bar != null) {
+                    bar.setHealth(hitbox.getHealth());
+                }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
 
@@ -72,7 +74,9 @@ public class Hitbox {
         hitbox.remove();
         HitboxListener.unregisterHitbox(this);
 
-        if (bar != null) bar.remove();
+        if (bar != null) {
+            bar.remove();
+        }
 
         hitbox = null;
     }
@@ -84,7 +88,9 @@ public class Hitbox {
     public void setHealth(int health) {
         hitbox.setHealth(health);
 
-        if (bar != null) bar.setHealth(health);
+        if (bar != null) {
+            bar.setHealth(health);
+        }
     }
 
     public void setDefense(double defense) {

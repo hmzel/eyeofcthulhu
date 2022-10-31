@@ -20,7 +20,7 @@ import static org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 public class HitboxListener implements Listener {
 
     private static final List<Hitbox> hitboxes = new ArrayList<>();
-    private static final Particle deadCloud = new ParticleCloud(0.2, 0.2, 0.2, 25);
+    private final Particle deadCloud = new ParticleCloud(0.2, 0.2, 0.2, 25);
 
     @EventHandler
     public void correctDamage(EntityDamageByEntityEvent e) {
@@ -42,6 +42,7 @@ public class HitboxListener implements Listener {
                 }
 
                 box.getEnemy().onHit(attacker, e.getFinalDamage());
+                return;
             }
         }
     }
@@ -51,26 +52,26 @@ public class HitboxListener implements Listener {
         Entity entity = e.getEntity();
 
         for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
-            if (box.sameEntity(entity)) {
-                if (e.getCause() == DamageCause.SUFFOCATION || e.getCause() == DamageCause.DROWNING) {
-                    e.setCancelled(true);
-                }
+            if (!box.sameEntity(entity)) continue;
 
-                if (((Slime) entity).getHealth() - e.getFinalDamage() <= 0) {
-                    e.setCancelled(true);
+            if (e.getCause() == DamageCause.SUFFOCATION || e.getCause() == DamageCause.DROWNING) {
+                e.setCancelled(true);
+            }
 
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ExperienceOrb orb = (ExperienceOrb) entity.getWorld().spawnEntity(entity.getLocation(), EntityType.EXPERIENCE_ORB);
+            if (((Slime) entity).getHealth() - e.getFinalDamage() <= 0) {
+                e.setCancelled(true);
 
-                            deadCloud.display(entity.getLocation());
-                            orb.setExperience(5);
-                        }
-                    }.runTaskLater(Main.getInstance(), 10);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        ExperienceOrb orb = (ExperienceOrb) entity.getWorld().spawnEntity(entity.getLocation(), EntityType.EXPERIENCE_ORB);
 
-                    box.remove();
-                }
+                        deadCloud.display(entity.getLocation());
+                        orb.setExperience(5);
+                    }
+                }.runTaskLater(Main.getInstance(), 10);
+
+                box.remove();
             }
         }
     }
@@ -78,10 +79,12 @@ public class HitboxListener implements Listener {
     @EventHandler
     public void onDeath(EntityDeathEvent e) {
         for (Hitbox box : hitboxes) {
-            if (box.sameEntity(e.getEntity())) {
-                e.getDrops().clear();
+            if (!box.sameEntity(e.getEntity())) continue;
 
-                if (box.getBar() != null) e.setDroppedExp(500);
+            e.getDrops().clear();
+
+            if (box.getBar() != null) {
+                e.setDroppedExp(500);
             }
         }
     }
