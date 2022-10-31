@@ -8,6 +8,7 @@ import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.LocationSafe;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
+import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Color;
@@ -16,6 +17,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.*;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -93,8 +95,10 @@ public class ServantOfCthulhu extends ParticleEnemy {
         new BukkitRunnable() {
 
             private final ParticleSphere body = (ParticleSphere) model.getShape(0);
-            private final Location l = body.getCenter().clone();
+            private final Location center = body.getCenter();
+            private final Location lHelper = center.clone();
             private final Vector vHelper = new Vector(0, 0, 0);
+            private final Vector vHelper2 = new Vector(0, 0, 0);
 
             @Override
             public void run() {
@@ -108,12 +112,46 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                l.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
-                LVMath.subtractToVector(vHelper, l, body.getCenter());
+                lHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                faceAroundBody(lHelper);
+                LVMath.subtractToVector(vHelper, lHelper, center);
                 vHelper.normalize().multiply(0.2);
+
+                for (Entity e : center.getWorld().getNearbyEntities(center, body.getxRadius() * 2, body.getxRadius() * 2, body.getxRadius() * 2)) {
+                    if (!(e instanceof Slime)) continue;
+                    if (e.getCustomName() == null) continue;
+                    if (!e.getCustomName().equals(hitbox.getSlime().getCustomName())) continue;
+                    if (!((Slime) e).hasPotionEffect(PotionEffectType.INVISIBILITY)) continue;
+
+                    ParticleEnemy enemy = null;
+
+                    for (Hitbox box : HitboxListener.getHitboxes()) {
+                        if (box == hitbox) continue;
+
+                        if (box.sameEntity(e)) {
+                            enemy = box.getEnemy();
+                            break;
+                        }
+                    }
+
+                    if (enemy == null) continue;
+
+                    Location l = enemy.getLocation();
+
+                    vHelper2.setX(center.getX()).setY(center.getY()).setZ(center.getZ());
+                    vHelper2.add(vHelper);
+
+                    if (!vHelper2.isInSphere(l.toVector(), body.getxRadius() * 2)) continue;
+
+                    lHelper.zero().add(vHelper2);
+                    LVMath.subtractToVector(vHelper2, l, lHelper);
+                    vHelper2.normalize();
+                    vHelper2.multiply((body.getxRadius() * 2) - l.distance(lHelper));
+                    vHelper.subtract(vHelper2);
+                }
+
                 model.move(vHelper);
-                faceAroundBody(l);
-                damageNearby(body.getCenter(), 1);
+                damageNearby(center, 1);
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
