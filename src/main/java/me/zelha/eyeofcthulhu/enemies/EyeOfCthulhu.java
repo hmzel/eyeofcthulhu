@@ -1,6 +1,7 @@
 package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.particles.ParticleDust;
+import hm.zelha.particlesfx.particles.ParticleExplosionHuge;
 import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
@@ -18,6 +19,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -41,6 +44,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
     private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
     private static final Particle NONE = new ParticleNull();
+    private static final Particle EXPLOSION = new ParticleExplosionHuge();
     private final Map<UUID, Double> damageMap = new HashMap<>();
     //i messed up while making phase 2's color and im Not Going To Redo It.
     private final Rotation teethFixer = new Rotation(0, 83, 0);
@@ -142,6 +146,38 @@ public class EyeOfCthulhu extends ParticleEnemy {
     public void onDeath() {
         super.onDeath();
         currentAI.cancel();
+
+        //it'd be REALLY cool to make something like the terraria death animation here, but the code would be incredibly god-awful
+        //and really tedious to make, so im not going to do it (for now)
+
+        new BukkitRunnable() {
+
+            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            int i = 0;
+
+            @Override
+            public void run() {
+                if (i == 120) {
+                    cancel();
+                    return;
+                }
+
+                locationHelper.zero().add(location);
+                vectorHelper.setX(rng.nextDouble(10) - 5);
+                vectorHelper.setY(rng.nextDouble(10) - 5);
+                vectorHelper.setZ(rng.nextDouble(10) - 5);
+                locationHelper.add(vectorHelper);
+
+                ExperienceOrb orb = (ExperienceOrb) location.getWorld().spawnEntity(locationHelper, EntityType.EXPERIENCE_ORB);
+
+                orb.setExperience(rng.nextInt(20) + 10);
+                vectorHelper.setX(rng.nextDouble() - 0.5).setY(rng.nextDouble() - 0.5).setZ(rng.nextDouble() - 0.5);
+                orb.setVelocity(vectorHelper);
+                EXPLOSION.display(location);
+
+                i++;
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
     private void hoverAI(int time) {

@@ -82,10 +82,6 @@ public class HitboxListener implements Listener {
             if (!box.sameEntity(e.getEntity())) continue;
 
             e.getDrops().clear();
-
-            if (box.getBar() != null) {
-                e.setDroppedExp(500);
-            }
         }
     }
 
