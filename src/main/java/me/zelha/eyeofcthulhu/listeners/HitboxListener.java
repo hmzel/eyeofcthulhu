@@ -71,7 +71,7 @@ public class HitboxListener implements Listener {
                     }
                 }.runTaskLater(Main.getInstance(), 10);
 
-                box.remove();
+                box.remove(false);
             }
         }
     }
@@ -99,7 +99,7 @@ public class HitboxListener implements Listener {
 
     public static void onDisable() {
         for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
-            box.remove();
+            box.remove(true);
         }
     }
 }

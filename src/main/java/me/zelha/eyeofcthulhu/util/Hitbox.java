@@ -69,8 +69,8 @@ public class Hitbox {
         HitboxListener.registerHitbox(this);
     }
 
-    public void remove() {
-        enemy.onDeath();
+    public void remove(boolean causedByDisable) {
+        enemy.onDeath(!causedByDisable);
         hitbox.remove();
         HitboxListener.unregisterHitbox(this);
 

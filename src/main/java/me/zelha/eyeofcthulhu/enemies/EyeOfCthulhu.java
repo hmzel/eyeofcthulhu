@@ -143,12 +143,14 @@ public class EyeOfCthulhu extends ParticleEnemy {
     }
 
     @Override
-    public void onDeath() {
-        super.onDeath();
+    public void onDeath(boolean animate) {
+        super.onDeath(animate);
         currentAI.cancel();
 
         //it'd be REALLY cool to make something like the terraria death animation here, but the code would be incredibly god-awful
         //and really tedious to make, so im not going to do it (for now)
+
+        if (!animate) return;
 
         new BukkitRunnable() {
 

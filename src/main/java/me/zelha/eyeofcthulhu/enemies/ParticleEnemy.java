@@ -35,7 +35,7 @@ public abstract class ParticleEnemy {
         target = (EntityLiving) ((CraftEntity) e).getHandle();
     }
 
-    public void onDeath() {
+    public void onDeath(boolean animate) {
         model.stop();
         despawner.cancel();
     }
@@ -66,7 +66,7 @@ public abstract class ParticleEnemy {
                 }
 
                 if (closest > 100) {
-                    hitbox.remove();
+                    hitbox.remove(true);
                 }
             }
         }.runTaskTimer(Main.getInstance(), 400, 20);
