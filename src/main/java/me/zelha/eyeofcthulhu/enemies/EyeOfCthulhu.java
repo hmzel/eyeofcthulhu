@@ -13,10 +13,7 @@ import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import hm.zelha.particlesfx.util.Rotation;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -255,6 +252,10 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     waiting = false;
                 }
 
+                if (i2 == 1 && !waiting && phaseTwo) {
+                    roar(1.5);
+                }
+
                 if (waiting) {
                     locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                     faceAroundBody(locationHelper);
@@ -300,6 +301,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     colorizePhaseTwo();
                     hitbox.setDefense(0);
                     hitbox.setDamage(9);
+                    roar(1.5);
                 }
 
                 if (i == 100) {
@@ -322,6 +324,16 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    private void roar(double pitch) {
+        Location center = getLocation();
+
+        for (Entity e : center.getWorld().getNearbyEntities(center, 25, 25, 25)) {
+            if (!(e instanceof Player)) continue;
+
+            ((Player) e).playSound(center, Sound.ENDERDRAGON_GROWL, 3, (float) pitch);
+        }
     }
 
     private void colorizePhaseOne() {
