@@ -195,6 +195,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
             @Override
             public void run() {
+                dayCheck();
+
                 if (target == null) {
                     findTarget(50);
                     return;
@@ -202,8 +204,9 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                 locationHelper.zero().add(target.locX, target.locY, target.locZ);
 
-                if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25 && servantCount <= 15) {
+                if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25 && servantCount <= 10) {
                     new ServantOfCthulhu(location, EyeOfCthulhu.this);
+                    servantCount++;
                 }
 
                 locationHelper.add(0, target.length + 7.5, 0);
@@ -237,6 +240,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
             @Override
             public void run() {
+                dayCheck();
+
                 if (target == null || !target.valid || !target.isAlive()) {
                     findTarget(50);
                     return;
@@ -327,6 +332,34 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 } else {
                     inc -= 0.75;
                 }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    private void dayCheck() {
+        if (locationHelper.getWorld().getTime() >= 12300 && locationHelper.getWorld().getTime() <= 23850) return;
+
+        currentAI.cancel();
+
+        currentAI = new BukkitRunnable() {
+
+            private boolean init = false;
+
+            @Override
+            public void run() {
+                if (!init) {
+                    init = true;
+
+                    locationHelper.zero();
+                    locationHelper.add(getLocation());
+                    locationHelper.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
+                    LVMath.subtractToVector(vectorHelper, locationHelper, getLocation());
+                    vectorHelper.normalize().multiply(0.25);
+                }
+
+                locationHelper.add(vectorHelper);
+                model.move(vectorHelper);
+                model.face(locationHelper);
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
