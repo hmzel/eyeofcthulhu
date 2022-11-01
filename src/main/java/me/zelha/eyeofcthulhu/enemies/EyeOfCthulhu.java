@@ -49,6 +49,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private final Vector vectorHelper = new Vector(0, 0, 0);
     private BukkitTask currentAI = null;
     private boolean phaseTwo = false;
+    private int servantCount = 0;
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
@@ -106,37 +107,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
         startDespawner(center);
     }
 
-    @Override
-    public void onHit(Entity attacker, double damage) {
-        if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
-            switchPhase();
-        }
-
-        if (!(attacker instanceof Player)) return;
-
-        damage += damageMap.getOrDefault(attacker.getUniqueId(), 0D);
-
-        damageMap.put(attacker.getUniqueId(), damage);
-
-        for (UUID uuid : damageMap.keySet()) {
-            if (Bukkit.getPlayer(uuid) == null) {
-                damageMap.remove(uuid);
-                continue;
-            }
-
-            if (damageMap.get(uuid) > 100) {
-                target = ((CraftLivingEntity) Bukkit.getPlayer(uuid)).getHandle();
-
-                damageMap.clear();
-            }
-        }
-    }
-
-    @Override
-    protected void startAI() {
-        colorizePhaseOne();
-        findTarget(50);
-        hoverAI(200);
+    public void onServantDeath() {
+        servantCount--;
     }
 
     @Override
@@ -179,6 +151,39 @@ public class EyeOfCthulhu extends ParticleEnemy {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
+    @Override
+    public void onHit(Entity attacker, double damage) {
+        if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
+            switchPhase();
+        }
+
+        if (!(attacker instanceof Player)) return;
+
+        damage += damageMap.getOrDefault(attacker.getUniqueId(), 0D);
+
+        damageMap.put(attacker.getUniqueId(), damage);
+
+        for (UUID uuid : damageMap.keySet()) {
+            if (Bukkit.getPlayer(uuid) == null) {
+                damageMap.remove(uuid);
+                continue;
+            }
+
+            if (damageMap.get(uuid) > 100) {
+                target = ((CraftLivingEntity) Bukkit.getPlayer(uuid)).getHandle();
+
+                damageMap.clear();
+            }
+        }
+    }
+
+    @Override
+    protected void startAI() {
+        colorizePhaseOne();
+        findTarget(50);
+        hoverAI(200);
+    }
+
     private void hoverAI(int time) {
         if (currentAI != null) currentAI.cancel();
 
@@ -197,8 +202,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                 locationHelper.zero().add(target.locX, target.locY, target.locZ);
 
-                if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25) {
-                    new ServantOfCthulhu(location);
+                if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25 && servantCount <= 15) {
+                    new ServantOfCthulhu(location, EyeOfCthulhu.this);
                 }
 
                 locationHelper.add(0, target.length + 7.5, 0);

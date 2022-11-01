@@ -27,6 +27,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
     private static final Particle BLACK = new ParticleDust(Color.BLACK);
     private static final Particle RED = new ParticleDust(Color.RED, 85);
     private static final Particle PURPLE = new ParticleDust(Color.PURPLE);
+    private final EyeOfCthulhu owner;
 
     static {
         WHITE.setRadius(32);
@@ -35,7 +36,8 @@ public class ServantOfCthulhu extends ParticleEnemy {
         PURPLE.setRadius(32);
     }
 
-    public ServantOfCthulhu(Location location) {
+    public ServantOfCthulhu(Location location, EyeOfCthulhu owner) {
+        this.owner = owner;
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
@@ -77,6 +79,12 @@ public class ServantOfCthulhu extends ParticleEnemy {
         model.addShape(tendrils);
         startAI();
         startDespawner(center);
+    }
+
+    @Override
+    public void onDeath(boolean animate) {
+        super.onDeath(animate);
+        owner.onServantDeath();
     }
 
     @Override
