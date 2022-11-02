@@ -121,6 +121,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         if (!animate) return;
 
+        roar(0.5);
+
         new BukkitRunnable() {
 
             private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
