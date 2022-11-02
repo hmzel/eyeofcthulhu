@@ -343,27 +343,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         currentAI.cancel();
 
-        currentAI = new BukkitRunnable() {
-
-            private boolean init = false;
-
-            @Override
-            public void run() {
-                if (!init) {
-                    init = true;
-
-                    locationHelper.zero();
-                    locationHelper.add(getLocation());
-                    locationHelper.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
-                    LVMath.subtractToVector(vectorHelper, locationHelper, getLocation());
-                    vectorHelper.normalize().multiply(0.25);
-                }
-
-                locationHelper.add(vectorHelper);
-                model.move(vectorHelper);
-                model.face(locationHelper);
-            }
-        }.runTaskTimer(Main.getInstance(), 0, 1);
+        currentAI = runAway();
     }
 
     private void roar(double pitch) {

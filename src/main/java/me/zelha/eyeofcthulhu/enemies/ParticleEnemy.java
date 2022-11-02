@@ -2,6 +2,7 @@ package me.zelha.eyeofcthulhu.enemies;
 
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.shapers.parents.Shape;
+import hm.zelha.particlesfx.util.LVMath;
 import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
@@ -15,6 +16,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +124,32 @@ public abstract class ParticleEnemy {
         if (target == null) return;
 
         this.target = (EntityLiving) ((CraftEntity) target).getHandle();
+    }
+
+    protected BukkitTask runAway() {
+        return new BukkitRunnable() {
+
+            private final Location locationHelper = ((ParticleSphere) model.getShape(0)).getCenter().clone();
+            private final Vector vectorHelper = new Vector(0, 0, 0);
+            private boolean init = false;
+
+            @Override
+            public void run() {
+                if (!init) {
+                    init = true;
+
+                    locationHelper.zero();
+                    locationHelper.add(getLocation());
+                    locationHelper.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
+                    LVMath.subtractToVector(vectorHelper, locationHelper, getLocation());
+                    vectorHelper.normalize().multiply(0.25);
+                }
+
+                locationHelper.add(vectorHelper);
+                model.move(vectorHelper);
+                faceAroundBody(locationHelper);
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
     protected void faceAroundBody(Location l) {
