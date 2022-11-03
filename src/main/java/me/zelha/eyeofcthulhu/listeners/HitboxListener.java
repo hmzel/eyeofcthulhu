@@ -34,7 +34,7 @@ public class HitboxListener implements Listener {
             }
 
             if (box.sameEntity(damaged)) {
-                e.setDamage(EntityDamageEvent.DamageModifier.ARMOR, box.getDefense());
+                e.setDamage(EntityDamageEvent.DamageModifier.ARMOR, -box.getDefense());
 
                 if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Entity) {
                     box.getEnemy().onHit((Entity) ((Projectile) attacker).getShooter(), e.getFinalDamage());

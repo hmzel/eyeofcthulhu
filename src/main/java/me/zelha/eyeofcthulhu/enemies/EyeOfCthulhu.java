@@ -109,7 +109,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
 
-        hitbox.setDefense(6);
+        hitbox.setDefense(2.5);
         model.addShape(body);
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);
