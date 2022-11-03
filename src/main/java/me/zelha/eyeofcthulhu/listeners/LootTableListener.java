@@ -1,6 +1,7 @@
 package me.zelha.eyeofcthulhu.listeners;
 
 import me.zelha.eyeofcthulhu.Main;
+import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
@@ -23,6 +24,8 @@ public class LootTableListener implements Listener {
 
     @EventHandler
     public void onChestLoad(ChunkPopulateEvent e) {
+        if (e.getChunk().getWorld().getDifficulty() == Difficulty.PEACEFUL) return;
+
         for (BlockState block : e.getChunk().getTileEntities()) {
             if (block.getType() != Material.CHEST) continue;
             if (rng.nextInt(5) != 1) return;
@@ -40,6 +43,8 @@ public class LootTableListener implements Listener {
 
     @EventHandler
     public void onChestOpen(InventoryOpenEvent e) {
+        if (e.getPlayer().getWorld().getDifficulty() == Difficulty.PEACEFUL) return;
+
         InventoryHolder holder = e.getInventory().getHolder();
 
         if (!(holder instanceof Chest)) return;

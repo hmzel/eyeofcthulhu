@@ -3,10 +3,7 @@ package me.zelha.eyeofcthulhu.listeners;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.enemies.EyeOfCthulhu;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,6 +32,7 @@ public class SummonItemListener implements Listener {
 
         e.setCancelled(true);
 
+        if (p.getWorld().getDifficulty() == Difficulty.PEACEFUL) return;
         if (p.getLocation().getY() <= 40) return;
         if (p.getWorld().getTime() < 12300 || p.getWorld().getTime() > 23850) return;
 
