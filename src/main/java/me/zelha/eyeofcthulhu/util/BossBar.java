@@ -28,7 +28,6 @@ public class BossBar {
             tag = new NBTTagCompound();
         }
 
-        wither.setMaxHealth(maxHealth);
         wither.setCustomName(display);
         nmsWither.c(tag);
         tag.setInt("NoAI", 1);
@@ -48,7 +47,7 @@ public class BossBar {
                 }
 
                 wither.teleport(location);
-                wither.setHealth(health);
+                wither.setHealth(wither.getMaxHealth() * (health / maxHealth));
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
@@ -65,10 +64,6 @@ public class BossBar {
     }
 
     public void setHealth(double health) {
-        if (health > wither.getMaxHealth()) {
-            wither.setMaxHealth(health);
-        }
-
         this.health = health;
     }
 
