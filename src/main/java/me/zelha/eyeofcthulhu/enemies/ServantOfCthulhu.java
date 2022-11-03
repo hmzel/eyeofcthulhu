@@ -11,10 +11,7 @@ import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import org.bukkit.Color;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffectType;
@@ -43,7 +40,17 @@ public class ServantOfCthulhu extends ParticleEnemy {
         Particle tendrilRed = new ParticleDust(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
-        super.hitbox = new Hitbox(this, center, 1, 1, 10, "Servant of Cthulhu", false);
+        double damage;
+
+        if (world.getDifficulty() == Difficulty.EASY) {
+            damage = 1;
+        } else if (world.getDifficulty() == Difficulty.NORMAL) {
+            damage = 2;
+        } else {
+            damage = 3;
+        }
+
+        super.hitbox = new Hitbox(this, center, 1, damage, 10, "Servant of Cthulhu", false);
 
         model.addShape(body);
         tendrilRed.setRadius(32);

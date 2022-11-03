@@ -61,8 +61,18 @@ public class EyeOfCthulhu extends ParticleEnemy {
         center.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
 
         ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
-        super.hitbox = new Hitbox(this, center, 7.5, 6, 1000, "Eye of Cthulhu", true);
         this.locationHelper = center.cloneToLocation();
+        double damage;
+
+        if (world.getDifficulty() == Difficulty.EASY) {
+            damage = 6;
+        } else if (world.getDifficulty() == Difficulty.NORMAL) {
+            damage = 12;
+        } else {
+            damage = 18;
+        }
+
+        super.hitbox = new Hitbox(this, center, 7.5, damage, 1000, "Eye of Cthulhu", true);
 
         hitbox.setDefense(6);
         model.addShape(body);
@@ -312,27 +322,36 @@ public class EyeOfCthulhu extends ParticleEnemy {
         currentAI = new BukkitRunnable() {
 
             private final ParticleSphere body = (ParticleSphere) model.getShape(0);
+            private final Location center = body.getCenter();
             private final Shape tendrils = model.getShape(1);
             private int i = 1;
             private double inc = 0.75;
 
             @Override
             public void run() {
-                tendrils.rotateAroundLocation(body.getCenter(), inc, 0, 0);
+                tendrils.rotateAroundLocation(center, inc, 0, 0);
                 tendrils.rotate(inc, 0, 0);
                 body.rotate(inc, 0, 0);
 
                 if (i == 50) {
                     colorizePhaseTwo();
                     hitbox.setDefense(0);
-                    hitbox.setDamage(9);
+
+                    if (center.getWorld().getDifficulty() == Difficulty.EASY) {
+                        hitbox.setDamage(9);
+                    } else if (center.getWorld().getDifficulty() == Difficulty.NORMAL) {
+                        hitbox.setDamage(14);
+                    } else {
+                        hitbox.setDamage(21);
+                    }
+
                     roar(1.5);
                 }
 
                 if (i == 100) {
                     //so that faceAroundBody doesn't get messed up
                     while (body.getPitch() > 90) {
-                        tendrils.rotateAroundLocation(body.getCenter(), -90, 0, 0);
+                        tendrils.rotateAroundLocation(center, -90, 0, 0);
                         tendrils.rotate(-90, 0, 0);
                         body.rotate(-90, 0, 0);
                     }
