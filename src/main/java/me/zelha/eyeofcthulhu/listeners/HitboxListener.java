@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.ARMOR;
 
 public class HitboxListener implements Listener {
 
@@ -34,7 +35,8 @@ public class HitboxListener implements Listener {
             }
 
             if (box.sameEntity(damaged)) {
-                e.setDamage(EntityDamageEvent.DamageModifier.ARMOR, -box.getDefense());
+                e.setDamage(ARMOR, -box.getDefense());
+                e.setDamage(ARMOR, e.getDamage(ARMOR) - (e.getDamage() * (box.getDefensePercent() / 100)));
 
                 if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Entity) {
                     box.getEnemy().onHit((Entity) ((Projectile) attacker).getShooter(), e.getFinalDamage());

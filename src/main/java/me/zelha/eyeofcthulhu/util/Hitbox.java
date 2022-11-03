@@ -22,6 +22,7 @@ public class Hitbox {
     private BossBar bar;
     private Slime hitbox;
     private double defense = 0;
+    private double defensePercent = 0;
 
     public Hitbox(ParticleEnemy enemy, Location location, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
@@ -97,6 +98,10 @@ public class Hitbox {
         this.defense = defense;
     }
 
+    public void setDefensePercent(double defensePercent) {
+        this.defensePercent = defensePercent;
+    }
+
     public void setDamage(double damage) {
         this.damage = damage;
     }
@@ -107,6 +112,10 @@ public class Hitbox {
 
     public double getDefense() {
         return defense;
+    }
+
+    public double getDefensePercent() {
+        return defensePercent;
     }
 
     public double getDamage() {
