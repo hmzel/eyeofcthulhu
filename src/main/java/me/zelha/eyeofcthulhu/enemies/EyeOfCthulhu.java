@@ -23,9 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class EyeOfCthulhu extends ParticleEnemy {
 
@@ -74,6 +72,39 @@ public class EyeOfCthulhu extends ParticleEnemy {
         } else {
             damage = 18;
             maxHealth = 1989;
+        }
+
+        if (world.getDifficulty() != Difficulty.EASY) {
+            List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+            double multiplier = 1;
+            double previous = 0;
+            boolean pastFirst = false;
+
+            for (Player p : new ArrayList<>(players)) {
+                if (p.getLocation().distance(location) > 200) {
+                    players.remove(p);
+                    continue;
+                }
+
+                if (!pastFirst) {
+                    pastFirst = true;
+                    continue;
+                }
+
+                if (previous == 0) {
+                    previous = 0.35;
+                } else {
+                    previous = previous + (1 - previous) / 3;
+                }
+
+                multiplier += previous;
+            }
+
+            if (players.size() >= 10) {
+                multiplier = (multiplier * 2 + 8) / 3;
+            }
+
+            maxHealth *= multiplier;
         }
 
         super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
