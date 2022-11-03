@@ -171,8 +171,16 @@ public class EyeOfCthulhu extends ParticleEnemy {
     public void onHit(Entity attacker, double damage) {
         hitSound();
 
-        if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
-            switchPhase();
+        if (!phaseTwo) {
+            if (attacker.getWorld().getDifficulty() == Difficulty.EASY) {
+                if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2) {
+                    switchPhase();
+                }
+            } else {
+                if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() * 0.65) {
+                    switchPhase();
+                }
+            }
         }
 
         if (!(attacker instanceof Player)) return;
