@@ -114,6 +114,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);
 
+        Main.getInstance().getCommand("setdefense").setExecutor(new SetDefensePercent(hitbox));
+
         for (int i = 0; i < 15; i++) {
             ParticleLine tendril;
 

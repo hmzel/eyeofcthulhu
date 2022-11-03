@@ -6,3 +6,5 @@ authors: [ zel ]
 commands:
   giveeye:
     usage: /<command>
+  setdefense:
+    usage: /<command>
