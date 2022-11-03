@@ -9,10 +9,7 @@ import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.*;
@@ -226,6 +223,16 @@ public abstract class ParticleEnemy {
             }
 
             ((LivingEntity) e).damage(hitbox.getDamage(), hitbox.getSlime());
+        }
+    }
+
+    protected void hitSound() {
+        Location center = getLocation();
+
+        for (Entity e : center.getWorld().getNearbyEntities(center, 25, 25, 25)) {
+            if (!(e instanceof Player)) continue;
+
+            ((Player) e).playSound(center, "mob.slime.attack", 3, 1.5f);
         }
     }
 

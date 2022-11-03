@@ -89,6 +89,8 @@ public class ServantOfCthulhu extends ParticleEnemy {
 
     @Override
     public void onHit(Entity attacker, double damage) {
+        hitSound();
+
         if (attacker instanceof Player && ((Player) attacker).getGameMode() != GameMode.SURVIVAL) {
             return;
         }
@@ -99,6 +101,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
     @Override
     protected void startAI() {
         findTarget(25);
+        hitSound();
 
         new BukkitRunnable() {
 

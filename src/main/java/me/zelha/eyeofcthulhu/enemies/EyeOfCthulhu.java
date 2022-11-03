@@ -155,6 +155,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     @Override
     public void onHit(Entity attacker, double damage) {
+        hitSound();
+
         if (hitbox.getSlime().getHealth() - damage <= hitbox.getSlime().getMaxHealth() / 2 && !phaseTwo) {
             switchPhase();
         }
