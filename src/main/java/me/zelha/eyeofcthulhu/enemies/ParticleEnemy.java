@@ -10,6 +10,7 @@ import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -77,10 +78,11 @@ public abstract class ParticleEnemy {
     protected void findTarget(double radius) {
         Location center = ((ParticleSphere) model.getShape(0)).getCenter();
         Entity target = null;
+        this.target = null;
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (!center.getWorld().equals(p.getWorld())) continue;
-            //if (p.getGameMode() != GameMode.SURVIVAL) continue;
+            if (p.getGameMode() != GameMode.SURVIVAL) continue;
 
             double distance = p.getLocation().distance(center);
 

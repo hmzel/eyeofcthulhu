@@ -182,7 +182,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
     @Override
     protected void startAI() {
         colorizePhaseOne();
-        findTarget(50);
         hoverAI(200);
     }
 
@@ -199,8 +198,14 @@ public class EyeOfCthulhu extends ParticleEnemy {
             public void run() {
                 dayCheck();
 
-                if (target == null) {
+                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
                     findTarget(50);
+
+                    if (target == null) {
+                        currentAI.cancel();
+
+                        currentAI = runAway();
+                    }
                     return;
                 }
 
@@ -244,8 +249,14 @@ public class EyeOfCthulhu extends ParticleEnemy {
             public void run() {
                 dayCheck();
 
-                if (target == null || !target.valid || !target.isAlive()) {
+                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
                     findTarget(50);
+
+                    if (target == null) {
+                        currentAI.cancel();
+
+                        currentAI = runAway();
+                    }
                     return;
                 }
 
