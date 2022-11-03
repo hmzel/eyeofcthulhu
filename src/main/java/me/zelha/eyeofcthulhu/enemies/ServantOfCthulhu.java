@@ -115,8 +115,19 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                if (target == null || !target.valid || !target.isAlive()) {
+                if (center.getWorld().getTime() < 12300 || center.getWorld().getTime() > 23850) {
+                    cancel();
+                    runAway();
+                    return;
+                }
+
+                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
                     findTarget(25);
+
+                    if (target == null) {
+                        cancel();
+                        runAway();
+                    }
                     return;
                 }
 
