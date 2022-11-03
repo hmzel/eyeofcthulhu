@@ -10,6 +10,7 @@ import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
@@ -51,9 +52,24 @@ public abstract class ParticleEnemy {
         despawner = new BukkitRunnable() {
 
             private final Location l = location.clone();
+            private boolean doDistanceCheck = false;
+            private int i = 0;
 
             @Override
             public void run() {
+                i++;
+
+                if (i == 400) {
+                    doDistanceCheck = true;
+                }
+
+                if (l.getWorld().getDifficulty() == Difficulty.PEACEFUL) {
+                    hitbox.remove(true);
+                }
+
+                if (!doDistanceCheck) return;
+                if (i % 20 != 0) return;
+
                 double closest = 9999;
 
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -72,7 +88,7 @@ public abstract class ParticleEnemy {
                     hitbox.remove(true);
                 }
             }
-        }.runTaskTimer(Main.getInstance(), 400, 20);
+        }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
     protected void findTarget(double radius) {
