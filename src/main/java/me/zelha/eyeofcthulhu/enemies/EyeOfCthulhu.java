@@ -63,16 +63,20 @@ public class EyeOfCthulhu extends ParticleEnemy {
         ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
         this.locationHelper = center.cloneToLocation();
         double damage;
+        double maxHealth;
 
         if (world.getDifficulty() == Difficulty.EASY) {
             damage = 6;
+            maxHealth = 1200;
         } else if (world.getDifficulty() == Difficulty.NORMAL) {
             damage = 12;
+            maxHealth = 1560;
         } else {
             damage = 18;
+            maxHealth = 1989;
         }
 
-        super.hitbox = new Hitbox(this, center, 7.5, damage, 1000, "Eye of Cthulhu", true);
+        super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
 
         hitbox.setDefense(6);
         model.addShape(body);

@@ -41,16 +41,20 @@ public class ServantOfCthulhu extends ParticleEnemy {
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
         double damage;
+        double maxHealth;
 
         if (world.getDifficulty() == Difficulty.EASY) {
             damage = 1;
+            maxHealth = 10;
         } else if (world.getDifficulty() == Difficulty.NORMAL) {
             damage = 2;
+            maxHealth = 15;
         } else {
             damage = 3;
+            maxHealth = 20;
         }
 
-        super.hitbox = new Hitbox(this, center, 1, damage, 10, "Servant of Cthulhu", false);
+        super.hitbox = new Hitbox(this, center, 1, damage, maxHealth, "Servant of Cthulhu", false);
 
         model.addShape(body);
         tendrilRed.setRadius(32);
