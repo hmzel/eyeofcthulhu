@@ -74,22 +74,69 @@ public class EyeOfCthulhu extends ParticleEnemy {
             maxHealth = 1989;
         }
 
-        //2 == 27
-        //3 == 41.11
-        //4 == 50.055
-        //5 == 55.946
-        //6 == 60.015
-        //7 == 62.945
-        //8 == 65.133
-        //9 == 66.822
-        //10 == 67.702
-        //11 == 68.508
-        //12 == 69.21
-        //13 == 69.827
-        //14 == 70.372
-        //15 == 70.8585
-
         super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
+
+        if (world.getDifficulty() != Difficulty.EASY) {
+            List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.getLocation().distance(location) <= 200) continue;
+                if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) continue;
+
+                players.remove(p);
+            }
+
+            //these numbers simulate what the health would be using terraria's calculations
+            //using defense % instead because in most servers health cannot go above 2048
+            //it would be genuinely insane to try and come up with some weird math for this, and probably take ages if its even possible,
+            //so im just going to hard-code it. more comprehensible that way anyways
+            switch (players.size()) {
+                case 0:
+                case 1:
+                    break;
+                case 2:
+                    hitbox.setDefensePercent(27);
+                    break;
+                case 3:
+                    hitbox.setDefensePercent(41.11);
+                    break;
+                case 4:
+                    hitbox.setDefensePercent(50.055);
+                    break;
+                case 5:
+                    hitbox.setDefensePercent(55.946);
+                    break;
+                case 6:
+                    hitbox.setDefensePercent(60.015);
+                    break;
+                case 7:
+                    hitbox.setDefensePercent(62.945);
+                    break;
+                case 8:
+                    hitbox.setDefensePercent(65.133);
+                    break;
+                case 9:
+                    hitbox.setDefensePercent(66.822);
+                    break;
+                case 10:
+                    hitbox.setDefensePercent(67.702);
+                    break;
+                case 11:
+                    hitbox.setDefensePercent(68.508);
+                    break;
+                case 12:
+                    hitbox.setDefensePercent(69.21);
+                    break;
+                case 13:
+                    hitbox.setDefensePercent(69.827);
+                    break;
+                case 14:
+                    hitbox.setDefensePercent(70.372);
+                    break;
+                default:
+                    hitbox.setDefensePercent(70.8585);
+            }
+        }
 
         hitbox.setDefense(2.5);
         model.addShape(body);
