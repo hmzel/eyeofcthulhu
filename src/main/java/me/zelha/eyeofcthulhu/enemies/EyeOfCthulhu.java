@@ -74,38 +74,20 @@ public class EyeOfCthulhu extends ParticleEnemy {
             maxHealth = 1989;
         }
 
-        if (world.getDifficulty() != Difficulty.EASY) {
-            List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
-            double multiplier = 1;
-            double previous = 0;
-            boolean pastFirst = false;
-
-            for (Player p : new ArrayList<>(players)) {
-                if (p.getLocation().distance(location) > 200) {
-                    players.remove(p);
-                    continue;
-                }
-
-                if (!pastFirst) {
-                    pastFirst = true;
-                    continue;
-                }
-
-                if (previous == 0) {
-                    previous = 0.35;
-                } else {
-                    previous = previous + (1 - previous) / 3;
-                }
-
-                multiplier += previous;
-            }
-
-            if (players.size() >= 10) {
-                multiplier = (multiplier * 2 + 8) / 3;
-            }
-
-            maxHealth *= multiplier;
-        }
+        //2 == 27
+        //3 == 41.11
+        //4 == 50.055
+        //5 == 55.946
+        //6 == 60.015
+        //7 == 62.945
+        //8 == 65.133
+        //9 == 66.822
+        //10 == 67.702
+        //11 == 68.508
+        //12 == 69.21
+        //13 == 69.827
+        //14 == 70.372
+        //15 == 70.8585
 
         super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
 
@@ -113,8 +95,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
         model.addShape(body);
         body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);
-
-        Main.getInstance().getCommand("setdefense").setExecutor(new SetDefensePercent(hitbox));
 
         for (int i = 0; i < 15; i++) {
             ParticleLine tendril;
