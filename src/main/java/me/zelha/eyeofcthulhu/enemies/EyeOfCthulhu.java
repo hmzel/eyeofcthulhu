@@ -278,10 +278,18 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private void hoverAI(int time) {
         if (currentAI != null) currentAI.cancel();
 
+        int servants;
+
+        if (getLocation().getWorld().getDifficulty() != Difficulty.EASY) {
+            servants = (4 + rng.nextInt(1));
+        } else {
+            servants = (3 + rng.nextInt(1));
+        }
+
         currentAI = new BukkitRunnable() {
 
             private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
-            private final int servantSpawn = ((time - 10) / (3 + rng.nextInt(1)));
+            private final int servantSpawn = (time - 10) / servants;
             private int i = 0;
 
             @Override
@@ -412,6 +420,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 body.rotate(inc, 0, 0);
 
                 if (i == 50) {
+                    Location l = center.clone();
+
                     colorizePhaseTwo();
                     hitbox.setDefense(0);
 
@@ -421,6 +431,14 @@ public class EyeOfCthulhu extends ParticleEnemy {
                         hitbox.setDamage(14);
                     } else {
                         hitbox.setDamage(21);
+                    }
+
+                    if (center.getWorld().getDifficulty() != Difficulty.EASY) {
+                        for (int i = 0; i < 4 + rng.nextInt(1); i++) {
+                            l.zero().add(center).add(rng.nextDouble() - 0.5, rng.nextDouble() - 0.5, rng.nextDouble() - 0.5);
+
+                            new ServantOfCthulhu(l, EyeOfCthulhu.this);
+                        }
                     }
 
                     roar(1.5);
