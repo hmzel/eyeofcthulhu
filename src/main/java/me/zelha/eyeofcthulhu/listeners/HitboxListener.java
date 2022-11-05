@@ -23,7 +23,7 @@ public class HitboxListener implements Listener {
     private static final List<Hitbox> hitboxes = new ArrayList<>();
     private final Particle deadCloud = new ParticleCloud(0.2, 0.2, 0.2, 25);
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void correctDamage(EntityDamageByEntityEvent e) {
         Entity attacker = e.getDamager();
         Entity damaged = e.getEntity();
@@ -49,7 +49,7 @@ public class HitboxListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void noNormalDamage(EntityDamageEvent e) {
         Entity entity = e.getEntity();
 
