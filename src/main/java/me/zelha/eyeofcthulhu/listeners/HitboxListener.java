@@ -4,8 +4,10 @@ import hm.zelha.particlesfx.particles.ParticleCloud;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -75,6 +77,62 @@ public class HitboxListener implements Listener {
 
                 box.remove(false);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void bypassImmunityFrames(EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Slime)) return;
+
+        boolean isHitbox = false;
+
+        for (Hitbox box : hitboxes) {
+            if (box.sameEntity(e.getEntity())) {
+                isHitbox = true;
+                break;
+            }
+        }
+
+        if (!isHitbox) return;
+
+        LivingEntity entity = (LivingEntity) e.getEntity();
+
+        entity.setMaximumNoDamageTicks(0);
+
+        if (!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
+
+        Entity attacker = ((EntityDamageByEntityEvent) entity.getLastDamageCause()).getDamager();
+
+        if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof LivingEntity) {
+            attacker = (Entity) ((Projectile) attacker).getShooter();
+        }
+
+        if (!(attacker instanceof LivingEntity)) return;
+        if (!attacker.equals(e.getDamager())) return;
+
+        if (((CraftLivingEntity) entity).getHandle().hurtTicks > 0) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void preventIFrameBypass(EntityDamageEvent e) {
+        if (e instanceof EntityDamageByEntityEvent) return;
+        if (!(e.getEntity() instanceof Slime)) return;
+
+        boolean isHitbox = false;
+
+        for (Hitbox box : hitboxes) {
+            if (box.sameEntity(e.getEntity())) {
+                isHitbox = true;
+                break;
+            }
+        }
+
+        if (!isHitbox) return;
+
+        if (((CraftLivingEntity) e.getEntity()).getHandle().hurtTicks > 0) {
+            e.setCancelled(true);
         }
     }
 
