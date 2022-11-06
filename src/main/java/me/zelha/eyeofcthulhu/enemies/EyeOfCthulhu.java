@@ -323,6 +323,16 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 1);
 
                 if (i == time) {
+                    if (phaseTwo && location.getWorld().getDifficulty() != Difficulty.EASY) {
+                        //idk what else to call this variable, basically determines how urgent the current situation is for
+                        //the EOC
+                        int anger = (int) ((hitbox.getSlime().getHealth() / hitbox.getSlime().getMaxHealth()) * 10) + 1;
+
+                        if (anger <= 4 && rng.nextInt(anger) <= 1) {
+                            rushAI(50, 2, 0);
+                        }
+                    }
+
                     rushAI(200, 3, 20);
                 }
 
@@ -364,6 +374,12 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     vectorHelper.normalize().multiply(20D / dashTime * 2);
                     faceAroundBody(locationHelper);
 
+                    if (wait == 0) {
+                        for (int i = 0; i < 11; i++) {
+                            faceAroundBody(locationHelper);
+                        }
+                    }
+
                     if (i != 0) {
                         i2 = 1;
                         waiting = true;
@@ -374,7 +390,11 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
 
                 if (i2 == 1 && !waiting && phaseTwo) {
-                    roar(1.5);
+                    if (wait == 0) {
+                        roar(2);
+                    } else {
+                        roar(1.5);
+                    }
                 }
 
                 if (waiting) {
@@ -388,7 +408,24 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 damageNearby(location, 3);
 
                 if (i == time) {
-                    if (phaseTwo) {
+                    if (phaseTwo && location.getWorld().getDifficulty() != Difficulty.EASY) {
+                        //idk what else to call this variable, basically determines how urgent the current situation is for
+                        //the EOC
+                        int anger = (int) ((hitbox.getSlime().getHealth() / hitbox.getSlime().getMaxHealth()) * 10) + 1;
+                        int extraDash = 1;
+
+                        if (anger <= 2) {
+                            extraDash--;
+                        }
+
+                        if ((rng.nextInt(anger) <= 3 && wait != 0) || (wait == 0 && rng.nextInt(anger) <= extraDash)) {
+                            rushAI(50, 2, 0);
+                        } else if (anger <= 3) {
+                            hoverAI(30);
+                        } else {
+                            hoverAI(60);
+                        }
+                    } else if (phaseTwo) {
                         hoverAI(60);
                     } else {
                         hoverAI(200);
