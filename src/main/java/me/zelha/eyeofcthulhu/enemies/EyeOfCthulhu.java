@@ -435,6 +435,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                     if (center.getWorld().getDifficulty() != Difficulty.EASY) {
                         for (int i = 0; i < 4 + rng.nextInt(4); i++) {
+                            if (servantCount > 10) break;
+
                             l.zero().add(center).add(rng.nextDouble() - 0.5, rng.nextDouble() - 0.5, rng.nextDouble() - 0.5);
 
                             new ServantOfCthulhu(l, EyeOfCthulhu.this);
