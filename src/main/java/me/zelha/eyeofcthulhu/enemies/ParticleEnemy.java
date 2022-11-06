@@ -117,13 +117,7 @@ public abstract class ParticleEnemy {
 
             if (!nearbyEntities.isEmpty()) {
                 for (int i = 0; i < nearbyEntities.size(); i++) {
-                    Entity e;
-
-                    if (nearbyEntities.size() > 1) {
-                        e = nearbyEntities.get(rng.nextInt(nearbyEntities.size() - 1));
-                    } else {
-                        e = nearbyEntities.get(0);
-                    }
+                    Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size()));
 
                     if (e instanceof Player) continue;
                     if (e instanceof Slime) continue;

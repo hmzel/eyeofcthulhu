@@ -281,9 +281,9 @@ public class EyeOfCthulhu extends ParticleEnemy {
         int servants;
 
         if (getLocation().getWorld().getDifficulty() != Difficulty.EASY) {
-            servants = (4 + rng.nextInt(1));
+            servants = 4 + rng.nextInt(2);
         } else {
-            servants = (3 + rng.nextInt(1));
+            servants = 3 + rng.nextInt(2);
         }
 
         currentAI = new BukkitRunnable() {
@@ -434,7 +434,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     }
 
                     if (center.getWorld().getDifficulty() != Difficulty.EASY) {
-                        for (int i = 0; i < 4 + rng.nextInt(1); i++) {
+                        for (int i = 0; i < 4 + rng.nextInt(4); i++) {
                             l.zero().add(center).add(rng.nextDouble() - 0.5, rng.nextDouble() - 0.5, rng.nextDouble() - 0.5);
 
                             new ServantOfCthulhu(l, EyeOfCthulhu.this);
