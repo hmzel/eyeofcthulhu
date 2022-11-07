@@ -1,6 +1,6 @@
 # big floating eyeball guy (scary)
 
-Made in 1.8 with ParticleSFX (my particle dependency)
+Made in 1.8 with [ParticleSFX](https://github.com/hmzel/ParticleSFX) (my particle dependency)
 
 [Showcase Video](https://www.youtube.com/watch?v=T1b8xYs3OHU)
 
