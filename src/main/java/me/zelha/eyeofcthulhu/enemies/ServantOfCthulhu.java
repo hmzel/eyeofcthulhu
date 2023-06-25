@@ -4,6 +4,7 @@ import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.shapers.ParticleSphereCSA;
 import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
@@ -23,7 +24,7 @@ import org.bukkit.util.Vector;
 
 public class ServantOfCthulhu extends ParticleEnemy {
 
-    private static final Particle WHITE = new ParticleDustColored(hm.zelha.particlesfx.util.Color.WHITE).setPureColor(true);
+    private static final Particle WHITE = new ParticleDustColored(Color.WHITE).setPureColor(true);
     private static final Particle BLACK = new ParticleDustColored(Color.BLACK);
     private static final Particle RED = new ParticleDustColored(Color.RED, 85);
     private static final Particle PURPLE = new ParticleDustColored(Color.PURPLE);
@@ -42,7 +43,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
         Particle tendrilRed = new ParticleDustColored(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
-        ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
+        ParticleSphereCSA body = new ParticleSphereCSA(RED, center, 0.5, 7, 50);
         double damage;
         double maxHealth;
 
@@ -87,8 +88,8 @@ public class ServantOfCthulhu extends ParticleEnemy {
         body.addParticle(WHITE, 24);
         body.addParticle(RED, 28);
         body.addParticle(WHITE, 29);
-        body.addParticle(PURPLE, 34);
-        body.addParticle(BLACK, 46);
+        body.addParticle(PURPLE, 29);
+        body.addParticle(BLACK, 39);
 
         model.addShape(tendrils);
         startAI();
