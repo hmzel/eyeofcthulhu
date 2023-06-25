@@ -1,29 +1,32 @@
 package me.zelha.eyeofcthulhu.enemies;
 
-import hm.zelha.particlesfx.particles.ParticleDust;
+import hm.zelha.particlesfx.particles.ParticleDustColored;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
-import hm.zelha.particlesfx.util.LVMath;
-import hm.zelha.particlesfx.util.LocationSafe;
-import hm.zelha.particlesfx.util.ParticleShapeCompound;
+import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import org.bukkit.*;
+import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class ServantOfCthulhu extends ParticleEnemy {
 
-    private static final Particle WHITE = new ParticleDust(Color.WHITE).setPureColor(true);
-    private static final Particle BLACK = new ParticleDust(Color.BLACK);
-    private static final Particle RED = new ParticleDust(Color.RED, 85);
-    private static final Particle PURPLE = new ParticleDust(Color.PURPLE);
+    private static final Particle WHITE = new ParticleDustColored(hm.zelha.particlesfx.util.Color.WHITE).setPureColor(true);
+    private static final Particle BLACK = new ParticleDustColored(Color.BLACK);
+    private static final Particle RED = new ParticleDustColored(Color.RED, 85);
+    private static final Particle PURPLE = new ParticleDustColored(Color.PURPLE);
     private final EyeOfCthulhu owner;
 
     static {
@@ -37,7 +40,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         this.owner = owner;
         World world = location.getWorld();
         LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
-        Particle tendrilRed = new ParticleDust(Color.RED, 75);
+        Particle tendrilRed = new ParticleDustColored(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         ParticleSphere body = new ParticleSphere(RED, center, 0.5, 0.5, 0.5, 7, 50);
         double damage;
@@ -68,9 +71,9 @@ public class ServantOfCthulhu extends ParticleEnemy {
             tendrils.addShape(tendril);
             tendril.rotateAroundLocation(center, 20, 120 * i, 0);
             tendril.rotate(20, 120 * i, 0);
-            tendril.setMechanic((particle, l, vector) ->
-                    l.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2)
-            );
+            tendril.addMechanic(ShapeDisplayMechanic.Phase.BEFORE_ROTATION, ((particle, current, addition, count) -> {
+                current.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2);
+            }));
         }
 
         body.addParticle(WHITE, 9);
@@ -150,7 +153,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 LVMath.subtractToVector(vHelper, lHelper, center);
                 vHelper.normalize().multiply(0.2);
 
-                for (Entity e : center.getWorld().getNearbyEntities(center, body.getxRadius() * 2, body.getxRadius() * 2, body.getxRadius() * 2)) {
+                for (Entity e : center.getWorld().getNearbyEntities(center, body.getXRadius() * 2, body.getXRadius() * 2, body.getXRadius() * 2)) {
                     if (!(e instanceof Slime)) continue;
                     if (e.getCustomName() == null) continue;
                     if (!e.getCustomName().equals(hitbox.getSlime().getCustomName())) continue;
@@ -174,12 +177,12 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     vHelper2.setX(center.getX()).setY(center.getY()).setZ(center.getZ());
                     vHelper2.add(vHelper);
 
-                    if (!vHelper2.isInSphere(l.toVector(), body.getxRadius() * 2)) continue;
+                    if (!vHelper2.isInSphere(l.toVector(), body.getXRadius() * 2)) continue;
 
                     lHelper.zero().add(vHelper2);
                     LVMath.subtractToVector(vHelper2, l, lHelper);
                     vHelper2.normalize();
-                    vHelper2.multiply((body.getxRadius() * 2) - l.distance(lHelper));
+                    vHelper2.multiply((body.getXRadius() * 2) - l.distance(lHelper));
                     vHelper.subtract(vHelper2);
                 }
 

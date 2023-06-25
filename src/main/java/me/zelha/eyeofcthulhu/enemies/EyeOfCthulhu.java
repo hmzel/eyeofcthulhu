@@ -1,16 +1,15 @@
 package me.zelha.eyeofcthulhu.enemies;
 
-import hm.zelha.particlesfx.particles.ParticleDust;
-import hm.zelha.particlesfx.particles.ParticleExplosionHuge;
+import hm.zelha.particlesfx.particles.ParticleDustColored;
+import hm.zelha.particlesfx.particles.ParticleExplosionEmitter;
 import hm.zelha.particlesfx.particles.ParticleNull;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
+import hm.zelha.particlesfx.shapers.ParticleSphereCSA;
 import hm.zelha.particlesfx.shapers.parents.Shape;
-import hm.zelha.particlesfx.util.LVMath;
-import hm.zelha.particlesfx.util.LocationSafe;
-import hm.zelha.particlesfx.util.ParticleShapeCompound;
-import hm.zelha.particlesfx.util.Rotation;
+import hm.zelha.particlesfx.util.Color;
+import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.*;
@@ -27,22 +26,16 @@ import java.util.*;
 
 public class EyeOfCthulhu extends ParticleEnemy {
 
-    //TODO implement difficulty-based changes
-    // EOC gradually speeds up as it dies
-    // in hard mode the boss gains more health depending on the amount of players nearby when summoned
-
-    private static final Particle WHITE = new ParticleDust(Color.WHITE, 100, 0.2, 0.2, 0.2, 1).setPureColor(true);
-    private static final Particle DIRTY_WHITE = new ParticleDust(Color.fromRGB(255, 255, 200), 75);
-    private static final Particle BLACK = new ParticleDust(Color.BLACK, 100, 0.2, 0.2, 0.2, 2);
-    private static final Particle GRAY = new ParticleDust(Color.GRAY, 35, 0.2, 0.2, 0.2, 2);
-    private static final Particle RED = new ParticleDust(Color.RED, 85, 0.2, 0.2, 0.2, 1);
-    private static final Particle BLUE = new ParticleDust(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
-    private static final Particle OLIVE = new ParticleDust(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
+    private static final Particle WHITE = new ParticleDustColored(Color.WHITE, 100, 0.2, 0.2, 0.2, 1).setPureColor(true);
+    private static final Particle DIRTY_WHITE = new ParticleDustColored(new Color(255, 255, 200), 75);
+    private static final Particle BLACK = new ParticleDustColored(Color.BLACK, 100, 0.2, 0.2, 0.2, 2);
+    private static final Particle GRAY = new ParticleDustColored(Color.GRAY, 35, 0.2, 0.2, 0.2, 2);
+    private static final Particle RED = new ParticleDustColored(Color.RED, 85, 0.2, 0.2, 0.2, 1);
+    private static final Particle BLUE = new ParticleDustColored(Color.BLUE, 100, 0.2, 0.2, 0.2, 1);
+    private static final Particle OLIVE = new ParticleDustColored(Color.OLIVE, 100, 0.2, 0.2, 0.2, 2);
     private static final Particle NONE = new ParticleNull();
-    private static final Particle EXPLOSION = new ParticleExplosionHuge();
+    private static final Particle EXPLOSION = new ParticleExplosionEmitter();
     private final Map<UUID, Double> damageMap = new HashMap<>();
-    //i messed up while making phase 2's color and im Not Going To Redo It.
-    private final Rotation teethFixer = new Rotation(0, 83, 0);
     private final Location locationHelper;
     private final Vector vectorHelper = new Vector(0, 0, 0);
     private BukkitTask currentAI = null;
@@ -51,7 +44,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
-        Particle tendrilRed = new ParticleDust(Color.RED, 75);
+        Particle tendrilRed = new ParticleDustColored(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         LocationSafe center = new LocationSafe(world, 0, 0, 0);
 
@@ -140,7 +133,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         hitbox.setDefense(2.5);
         model.addShape(body);
-        body.setMechanic((particle, location1, vector) -> teethFixer.apply(vector));
         findTarget(200);
 
         for (int i = 0; i < 15; i++) {
@@ -171,9 +163,9 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 tendril.rotate(30, 180 + (72 * (i - 10)), 0);
             }
 
-            tendril.setMechanic((particle, l, vector) ->
-                l.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2)
-            );
+            tendril.addMechanic(ShapeDisplayMechanic.Phase.BEFORE_ROTATION, ((particle, current, addition, count) -> {
+                current.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2);
+            }));
         }
 
         model.addShape(tendrils);

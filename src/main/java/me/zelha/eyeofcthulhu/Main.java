@@ -1,5 +1,6 @@
 package me.zelha.eyeofcthulhu;
 
+import hm.zelha.particlesfx.util.ParticleSFX;
 import me.zelha.eyeofcthulhu.commands.GiveEyeCommand;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.listeners.LootTableListener;
@@ -34,6 +35,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        ParticleSFX.setPlugin(this);
         Bukkit.getPluginManager().registerEvents(new HitboxListener(), this);
         Bukkit.getPluginManager().registerEvents(new LootTableListener(), this);
         Bukkit.getPluginManager().registerEvents(new SummonItemListener(), this);
