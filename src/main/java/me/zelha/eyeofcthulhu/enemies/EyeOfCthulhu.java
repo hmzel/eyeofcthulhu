@@ -31,6 +31,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private static final Particle BLACK = new ParticleDustColored(Color.BLACK, 100, 0.1, 0.1, 0.1, 2);
     private static final Particle GRAY = new ParticleDustColored(Color.GRAY, 35, 0.1, 0.1, 0.1, 2);
     private static final Particle RED = new ParticleDustColored(Color.RED, 85, 0.1, 0.1, 0.1, 1);
+    private static final Particle TENDRIL_RED = new ParticleDustColored(Color.RED, 75);
     private static final Particle BLUE = new ParticleDustColored(Color.BLUE, 100, 0.1, 0.1, 0.1, 1);
     private static final Particle OLIVE = new ParticleDustColored(Color.OLIVE, 100, 0.1, 0.1, 0.1, 2);
     private static final Particle NONE = new ParticleNull();
@@ -44,30 +45,11 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
-        Particle tendrilRed = new ParticleDustColored(Color.RED, 75);
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
-        LocationSafe center = new LocationSafe(world, 0, 0, 0);
-
-        center.add(location);
-        center.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
-
-        ParticleSphere body = new ParticleSphere(WHITE, center, 3, 3, 3, 20, 750);
-        this.locationHelper = center.cloneToLocation();
-        double damage;
-        double maxHealth;
-
-        if (world.getDifficulty() == Difficulty.EASY) {
-            damage = 6;
-            maxHealth = 1200;
-        } else if (world.getDifficulty() == Difficulty.NORMAL) {
-            damage = 12;
-            maxHealth = 1560;
-        } else {
-            damage = 18;
-            maxHealth = 1989;
-        }
-
-        super.hitbox = new Hitbox(this, center, 7.5, damage, maxHealth, "Eye of Cthulhu", true);
+        LocationSafe center = new LocationSafe(location).add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
+        ParticleSphereCSA body = new ParticleSphereCSA(WHITE, center, 3, 20, 750);
+        super.hitbox = new Hitbox(this, center, 7.5, 7 + (5 * (world.getDifficulty().ordinal() - 1)), 1200 + (394 * (world.getDifficulty().ordinal() - 1)), "Eye of Cthulhu", true);
+        this.locationHelper = center.clone();
 
         if (world.getDifficulty() != Difficulty.EASY) {
             List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
@@ -131,44 +113,37 @@ public class EyeOfCthulhu extends ParticleEnemy {
             }
         }
 
-        hitbox.setDefense(2.5);
-        model.addShape(body);
-        findTarget(200);
-
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril;
+            ParticleLine tendril = new ParticleLine(TENDRIL_RED, 30,
+                    new LocationSafe(center).add(0, 6.5, 0),
+                    new LocationSafe(center).add(0, 3, 0)
+            );
 
-            if (i < 10) {
-                tendril = new ParticleLine(tendrilRed, 30,
-                        new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
-                        new LocationSafe(world, center.getX(), center.getY() + 6.5, center.getZ())
-                );
-            } else {
-                tendril = new ParticleLine(tendrilRed, 10,
-                        new LocationSafe(world, center.getX(), center.getY() + 3, center.getZ()),
-                        new LocationSafe(world, center.getX(), center.getY() + 4, center.getZ())
-                );
+            if (i >= 10) {
+                tendril.getLocation(0).subtract(0, 2.5, 0);
+                tendril.setParticleFrequency(10);
             }
-
-            tendrils.addShape(tendril);
 
             if (i < 5) {
                 tendril.rotateAroundLocation(center, 30, 72 * i, 0);
-                tendril.rotate(30, 72 * i, 0);
             } else if (i < 10) {
-                tendril.rotateAroundLocation(center, 15, 180 + (72 * (i - 5)), 0);
-                tendril.rotate(15, 180 + (72 * (i - 5)), 0);
+                tendril.rotateAroundLocation(center, 15, 180 + (72 * i), 0);
             } else {
-                tendril.rotateAroundLocation(center, 30, 180 + (72 * (i - 10)), 0);
-                tendril.rotate(30, 180 + (72 * (i - 10)), 0);
+                tendril.rotateAroundLocation(center, 30, 180 + (72 * i), 0);
             }
 
+            tendril.face(center);
+            tendrils.addShape(tendril);
             tendril.addMechanic(ShapeDisplayMechanic.Phase.BEFORE_ROTATION, ((particle, current, addition, count) -> {
                 current.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2);
             }));
         }
 
+        body.setAxisYaw(47); //i messed up while making phase 2's color and im Not Going To Redo It.
+        hitbox.setDefense(2.5);
+        model.addShape(body);
         model.addShape(tendrils);
+        findTarget(200);
         startAI();
         startDespawner(center);
     }
@@ -182,9 +157,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
         super.onDeath(animate);
         currentAI.cancel();
 
-        //it'd be REALLY cool to make something like the terraria death animation here, but the code would be incredibly god-awful
-        //and really tedious to make, so im not going to do it (for now)
-
         if (!animate) return;
 
         roar(0.5);
@@ -196,16 +168,10 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
             @Override
             public void run() {
-                if (i == 120) {
-                    cancel();
-                    return;
-                }
-
-                locationHelper.zero().add(location);
                 vectorHelper.setX(rng.nextDouble(10) - 5);
                 vectorHelper.setY(rng.nextDouble(10) - 5);
                 vectorHelper.setZ(rng.nextDouble(10) - 5);
-                locationHelper.add(vectorHelper);
+                locationHelper.zero().add(location).add(vectorHelper);
 
                 ExperienceOrb orb = (ExperienceOrb) location.getWorld().spawnEntity(locationHelper, EntityType.EXPERIENCE_ORB);
 
@@ -214,42 +180,41 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 orb.setVelocity(vectorHelper);
                 EXPLOSION.display(location);
 
-                i++;
+                if (++i == 120) cancel();
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
     @Override
     public void onHit(Entity attacker, double damage) {
-        hitSound();
-
         Difficulty difficulty = attacker.getWorld().getDifficulty();
         double health = hitbox.getSlime().getHealth() - damage;
         double maxHealth = hitbox.getSlime().getMaxHealth();
+
+        hitSound();
 
         if (phaseTwo) {
             if (health <= maxHealth * 0.04) {
                 if (difficulty == Difficulty.NORMAL) {
                     hitbox.setDamage(16);
-                } else {
+                } else if (difficulty == Difficulty.HARD) {
                     hitbox.setDamage(24);
                 }
             }
         } else {
-            if ((difficulty == Difficulty.EASY && health <= maxHealth / 2) || (difficulty != Difficulty.EASY && health - damage <= maxHealth * 0.65)) {
+            if ((difficulty == Difficulty.EASY && health <= maxHealth / 2) || (difficulty != Difficulty.EASY && health <= maxHealth * 0.65)) {
                 switchPhase();
             }
         }
 
         if (!(attacker instanceof Player)) return;
 
-        damage += damageMap.getOrDefault(attacker.getUniqueId(), 0D);
-
-        damageMap.put(attacker.getUniqueId(), damage);
+        damageMap.put(attacker.getUniqueId(), damage + damageMap.getOrDefault(attacker.getUniqueId(), 0D));
 
         for (UUID uuid : damageMap.keySet()) {
             if (Bukkit.getPlayer(uuid) == null) {
                 damageMap.remove(uuid);
+
                 continue;
             }
 
@@ -270,18 +235,10 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private void hoverAI(int time) {
         if (currentAI != null) currentAI.cancel();
 
-        int servants;
-
-        if (getLocation().getWorld().getDifficulty() != Difficulty.EASY) {
-            servants = 4 + rng.nextInt(2);
-        } else {
-            servants = 3 + rng.nextInt(2);
-        }
-
         currentAI = new BukkitRunnable() {
 
             private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
-            private final int servantSpawn = (time - 10) / servants;
+            private final int servantSpawn = (time - 10) / (3 + rng.nextInt(2) + Math.max(location.getWorld().getDifficulty().ordinal() - 2, 0));
             private int i = 0;
 
             @Override
@@ -296,6 +253,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                         currentAI = runAway();
                     }
+
                     return;
                 }
 
@@ -303,6 +261,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                 if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25 && servantCount <= 10) {
                     new ServantOfCthulhu(location, EyeOfCthulhu.this);
+
                     servantCount++;
                 }
 
@@ -312,12 +271,10 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 model.move(vectorHelper);
                 locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                 faceAroundBody(locationHelper);
-                damageNearby(location, 1);
+                damageNearby(location, 3);
 
                 if (i == time) {
                     if (phaseTwo && location.getWorld().getDifficulty() != Difficulty.EASY) {
-                        //idk what else to call this variable, basically determines how urgent the current situation is for
-                        //the EOC
                         int anger = (int) ((hitbox.getSlime().getHealth() / hitbox.getSlime().getMaxHealth()) * 10) + 1;
 
                         if (anger <= 4 && rng.nextInt(anger) <= 1) {
@@ -341,9 +298,9 @@ public class EyeOfCthulhu extends ParticleEnemy {
             private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
             private final int dashTime = (int) Math.ceil(((time - (wait * dashes)) / dashes) + 1);
             private final int waitTime = wait + 1;
-            private int i = 0;
-            private int i2 = 1;
-            private boolean waiting = false;
+            private int ticks = 0;
+            private int timer = 1;
+            private boolean waiting = true;
 
             @Override
             public void run() {
@@ -357,10 +314,16 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
                         currentAI = runAway();
                     }
+
                     return;
                 }
 
-                if (i == 0 || (i2 % dashTime == 0 && !waiting)) {
+                if (timer % dashTime == 0 && !waiting) {
+                    timer = 1;
+                    waiting = true;
+                }
+
+                if (waiting) {
                     locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
                     LVMath.subtractToVector(vectorHelper, locationHelper, location);
                     vectorHelper.normalize().multiply(20D / dashTime * 2);
@@ -372,37 +335,32 @@ public class EyeOfCthulhu extends ParticleEnemy {
                         }
                     }
 
-                    if (i != 0) {
-                        i2 = 1;
-                        waiting = true;
-                    }
-                } else if (waiting && i2 % waitTime == 0) {
-                    i2 = 1;
-                    waiting = false;
-                }
-
-                if (i2 == 1 && !waiting && phaseTwo) {
-                    if (wait == 0) {
-                        roar(2);
-                    } else {
-                        roar(1.5);
+                    if (ticks == 0 || timer % waitTime == 0) {
+                        timer = 1;
+                        waiting = false;
                     }
                 }
 
-                if (waiting) {
-                    locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
-                    faceAroundBody(locationHelper);
-                } else {
+                if (!waiting) {
                     model.move(vectorHelper);
                     vectorHelper.multiply(0.95);
+
+                    if (timer == 1 && phaseTwo) {
+                        if (wait == 0) {
+                            roar(2);
+                        } else {
+                            roar(1.5);
+                        }
+                    }
                 }
 
                 damageNearby(location, 3);
 
-                if (i == time) {
+                ticks++;
+                timer++;
+
+                if (ticks == time) {
                     if (phaseTwo && location.getWorld().getDifficulty() != Difficulty.EASY) {
-                        //idk what else to call this variable, basically determines how urgent the current situation is for
-                        //the EOC
                         int anger = (int) ((hitbox.getSlime().getHealth() / hitbox.getSlime().getMaxHealth()) * 10) + 1;
                         int extraDash = 1;
 
@@ -423,9 +381,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
                         hoverAI(200);
                     }
                 }
-
-                i++;
-                i2++;
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
@@ -439,59 +394,45 @@ public class EyeOfCthulhu extends ParticleEnemy {
             private final ParticleSphere body = (ParticleSphere) model.getShape(0);
             private final Location center = body.getCenter();
             private final Shape tendrils = model.getShape(1);
-            private int i = 1;
-            private double inc = 0.75;
+            private double rotation = 0.75;
+            private int ticks = 1;
 
             @Override
             public void run() {
-                tendrils.rotateAroundLocation(center, inc, 0, 0);
-                tendrils.rotate(inc, 0, 0);
-                body.rotate(inc, 0, 0);
+                tendrils.rotateAroundLocation(center, rotation, 0, 0);
+                tendrils.rotate(rotation, 0, 0);
+                body.rotate(rotation, 0, 0);
 
-                if (i == 50) {
-                    Location l = center.clone();
-
+                if (ticks == 50) {
                     colorizePhaseTwo();
                     hitbox.setDefense(0);
-
-                    if (center.getWorld().getDifficulty() == Difficulty.EASY) {
-                        hitbox.setDamage(9);
-                    } else if (center.getWorld().getDifficulty() == Difficulty.NORMAL) {
-                        hitbox.setDamage(14);
-                    } else {
-                        hitbox.setDamage(21);
-                    }
+                    hitbox.setDamage(9 + (6 * (center.getWorld().getDifficulty().ordinal() - 1)));
 
                     if (center.getWorld().getDifficulty() != Difficulty.EASY) {
-                        for (int i = 0; i < 4 + rng.nextInt(4); i++) {
-                            if (servantCount > 10) break;
+                        int servantAmount = 4 + rng.nextInt(4);
 
-                            l.zero().add(center).add(rng.nextDouble() - 0.5, rng.nextDouble() - 0.5, rng.nextDouble() - 0.5);
-
-                            new ServantOfCthulhu(l, EyeOfCthulhu.this);
+                        for (int i = 0; i < servantAmount && servantCount <= 10; i++, servantCount++) {
+                            new ServantOfCthulhu(locationHelper.zero().add(center).add(rng.nextDouble() - 0.5, rng.nextDouble() - 0.5, rng.nextDouble() - 0.5), EyeOfCthulhu.this);
                         }
                     }
 
                     roar(1.5);
                 }
 
-                if (i == 100) {
+                if (ticks == 100) {
                     //so that faceAroundBody doesn't get messed up
-                    while (body.getPitch() > 90) {
-                        tendrils.rotateAroundLocation(center, -90, 0, 0);
-                        tendrils.rotate(-90, 0, 0);
-                        body.rotate(-90, 0, 0);
-                    }
-
+                    tendrils.setAroundPitch(center, tendrils.getAroundPitch() % 90);
+                    tendrils.setPitch(tendrils.getPitch() % 90);
+                    body.setPitch(body.getPitch() % 90);
                     hoverAI(60);
                 }
 
-                i++;
+                ticks++;
 
-                if (i <= 50) {
-                    inc += 0.75;
+                if (ticks <= 50) {
+                    rotation += 0.75;
                 } else {
-                    inc -= 0.75;
+                    rotation -= 0.75;
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
@@ -518,8 +459,6 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private void colorizePhaseOne() {
         ParticleSphere body = (ParticleSphere) model.getShape(0);
 
-        //before you judge me, its either this or incomprehensible math that would take me days to come up with.
-        //pick your poison
         body.addParticle(RED, 0);
         body.addParticle(WHITE, 96);
         body.addParticle(RED, 103);
@@ -677,9 +616,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private void colorizePhaseTwo() {
         ParticleSphere body = (ParticleSphere) model.getShape(0);
         int removeIndex = body.getSecondaryParticleAmount() - 6;
-        int amount = body.getSecondaryParticleAmount();
 
-        for (int i = removeIndex; i < amount; i++) {
+        for (int i = removeIndex; i < body.getSecondaryParticleAmount(); i++) {
             body.removeParticle(removeIndex);
         }
 
