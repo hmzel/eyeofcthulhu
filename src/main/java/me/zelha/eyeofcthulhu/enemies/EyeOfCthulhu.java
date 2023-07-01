@@ -48,8 +48,8 @@ public class EyeOfCthulhu extends ParticleEnemy {
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         LocationSafe center = new LocationSafe(location).add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
         ParticleSphereCSA body = new ParticleSphereCSA(WHITE, center, 3, 20, 750);
-        super.hitbox = new Hitbox(this, center, 7.5, 7 + (5 * (world.getDifficulty().ordinal() - 1)), 1200 + (394 * (world.getDifficulty().ordinal() - 1)), "Eye of Cthulhu", true);
-        this.locationHelper = center.clone();
+        hitbox = new Hitbox(this, center, 7.5, 7 + (5 * (world.getDifficulty().ordinal() - 1)), 1200 + (394 * (world.getDifficulty().ordinal() - 1)), "Eye of Cthulhu", true);
+        locationHelper = center.clone();
 
         if (world.getDifficulty() != Difficulty.EASY) {
             List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());

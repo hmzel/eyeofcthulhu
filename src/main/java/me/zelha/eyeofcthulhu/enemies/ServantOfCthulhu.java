@@ -10,68 +10,36 @@ import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 public class ServantOfCthulhu extends ParticleEnemy {
 
-    private static final Particle WHITE = new ParticleDustColored(Color.WHITE).setPureColor(true);
-    private static final Particle BLACK = new ParticleDustColored(Color.BLACK);
-    private static final Particle RED = new ParticleDustColored(Color.RED, 85);
-    private static final Particle PURPLE = new ParticleDustColored(Color.PURPLE);
+    private static final Particle WHITE = new ParticleDustColored(Color.WHITE).setPureColor(true).setRadius(32);
+    private static final Particle BLACK = new ParticleDustColored(Color.BLACK).setRadius(32);
+    private static final Particle RED = new ParticleDustColored(Color.RED, 85).setRadius(32);
+    private static final Particle PURPLE = new ParticleDustColored(Color.PURPLE).setRadius(32);
     private final EyeOfCthulhu owner;
-
-    static {
-        WHITE.setRadius(32);
-        BLACK.setRadius(32);
-        RED.setRadius(32);
-        PURPLE.setRadius(32);
-    }
 
     public ServantOfCthulhu(Location location, EyeOfCthulhu owner) {
         this.owner = owner;
-        World world = location.getWorld();
-        LocationSafe center = new LocationSafe(world, location.getX(), location.getY(), location.getZ());
-        Particle tendrilRed = new ParticleDustColored(Color.RED, 75);
-        ParticleShapeCompound tendrils = new ParticleShapeCompound();
+        LocationSafe center = new LocationSafe(location);
         ParticleSphereCSA body = new ParticleSphereCSA(RED, center, 0.5, 7, 50);
-        double damage;
-        double maxHealth;
-
-        if (world.getDifficulty() == Difficulty.EASY) {
-            damage = 1;
-            maxHealth = 10;
-        } else if (world.getDifficulty() == Difficulty.NORMAL) {
-            damage = 2;
-            maxHealth = 15;
-        } else {
-            damage = 3;
-            maxHealth = 20;
-        }
-
-        super.hitbox = new Hitbox(this, center, 1, damage, maxHealth, "Servant of Cthulhu", false);
-
-        model.addShape(body);
-        tendrilRed.setRadius(32);
+        ParticleShapeCompound tendrils = new ParticleShapeCompound();
+        hitbox = new Hitbox(this, center, 1, center.getWorld().getDifficulty().ordinal(), 10 + (5 * (center.getWorld().getDifficulty().ordinal() - 1)), "Servant of Cthulhu", false);
 
         for (int i = 0; i < 3; i++) {
-            ParticleLine tendril = new ParticleLine(tendrilRed, 4,
-                    new LocationSafe(world, center.getX(), center.getY() + 0.5, center.getZ()),
-                    new LocationSafe(world, center.getX(), center.getY() + 1, center.getZ())
+            ParticleLine tendril = new ParticleLine(new ParticleDustColored(Color.RED, 75).setRadius(32), 4,
+                    new LocationSafe(center).add(0, 1, 0),
+                    new LocationSafe(center).add(0, 0.5, 0)
             );
 
-            tendrils.addShape(tendril);
             tendril.rotateAroundLocation(center, 20, 120 * i, 0);
-            tendril.rotate(20, 120 * i, 0);
+            tendril.face(center);
+            tendrils.addShape(tendril);
             tendril.addMechanic(ShapeDisplayMechanic.Phase.BEFORE_ROTATION, ((particle, current, addition, count) -> {
                 current.add(rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2, rng.nextDouble(0.4) - 0.2);
             }));
@@ -90,7 +58,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         body.addParticle(WHITE, 29);
         body.addParticle(PURPLE, 29);
         body.addParticle(BLACK, 39);
-
+        model.addShape(body);
         model.addShape(tendrils);
         startAI();
         startDespawner(center);
@@ -106,10 +74,6 @@ public class ServantOfCthulhu extends ParticleEnemy {
     public void onHit(Entity attacker, double damage) {
         hitSound();
 
-        if (attacker instanceof Player && ((Player) attacker).getGameMode() != GameMode.SURVIVAL) {
-            return;
-        }
-
         target = (EntityLiving) ((CraftEntity) attacker).getHandle();
     }
 
@@ -123,19 +87,21 @@ public class ServantOfCthulhu extends ParticleEnemy {
             private final ParticleSphere body = (ParticleSphere) model.getShape(0);
             private final Location center = body.getCenter();
             private final Location lHelper = center.clone();
-            private final Vector vHelper = new Vector(0, 0, 0);
-            private final Vector vHelper2 = new Vector(0, 0, 0);
+            private final Vector vHelper = new Vector();
+            private final Vector vHelper2 = new Vector();
 
             @Override
             public void run() {
                 if (!body.isRunning()) {
                     cancel();
+
                     return;
                 }
 
                 if (center.getWorld().getTime() < 12300 || center.getWorld().getTime() > 23850) {
                     cancel();
                     runAway();
+
                     return;
                 }
 
@@ -146,6 +112,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                         cancel();
                         runAway();
                     }
+
                     return;
                 }
 
@@ -154,36 +121,16 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 LVMath.subtractToVector(vHelper, lHelper, center);
                 vHelper.normalize().multiply(0.2);
 
-                for (Entity e : center.getWorld().getNearbyEntities(center, body.getXRadius() * 2, body.getXRadius() * 2, body.getXRadius() * 2)) {
-                    if (!(e instanceof Slime)) continue;
-                    if (e.getCustomName() == null) continue;
-                    if (!e.getCustomName().equals(hitbox.getSlime().getCustomName())) continue;
-                    if (!((Slime) e).hasPotionEffect(PotionEffectType.INVISIBILITY)) continue;
+                for (Hitbox box : HitboxListener.getHitboxes()) {
+                    Location l = box.getEnemy().getLocation();
 
-                    ParticleEnemy enemy = null;
+                    if (box == hitbox) continue;
+                    if (!box.getSlime().getCustomName().equals(hitbox.getSlime().getCustomName())) continue;
+                    if (lHelper.zero().add(center).add(vHelper).distanceSquared(l) > 1) continue;
 
-                    for (Hitbox box : HitboxListener.getHitboxes()) {
-                        if (box == hitbox) continue;
-
-                        if (box.sameEntity(e)) {
-                            enemy = box.getEnemy();
-                            break;
-                        }
-                    }
-
-                    if (enemy == null) continue;
-
-                    Location l = enemy.getLocation();
-
-                    vHelper2.setX(center.getX()).setY(center.getY()).setZ(center.getZ());
-                    vHelper2.add(vHelper);
-
-                    if (!vHelper2.isInSphere(l.toVector(), body.getXRadius() * 2)) continue;
-
-                    lHelper.zero().add(vHelper2);
                     LVMath.subtractToVector(vHelper2, l, lHelper);
                     vHelper2.normalize();
-                    vHelper2.multiply((body.getXRadius() * 2) - l.distance(lHelper));
+                    vHelper2.multiply(1 - l.distance(lHelper));
                     vHelper.subtract(vHelper2);
                 }
 
