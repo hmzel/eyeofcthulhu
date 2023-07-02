@@ -5,12 +5,14 @@ import me.zelha.eyeofcthulhu.commands.GiveEyeCommand;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.listeners.LootTableListener;
 import me.zelha.eyeofcthulhu.listeners.SummonItemListener;
+import me.zelha.eyeofcthulhu.util.Hitbox;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public final class Main extends JavaPlugin {
@@ -44,7 +46,9 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        HitboxListener.onDisable();
+        for (Hitbox box : new ArrayList<>(HitboxListener.getHitboxes())) {
+            box.remove(true);
+        }
     }
 
     public static ItemStack getSummonItem() {

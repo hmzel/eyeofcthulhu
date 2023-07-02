@@ -23,7 +23,7 @@ import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.ARMOR;
 public class HitboxListener implements Listener {
 
     private static final List<Hitbox> hitboxes = new ArrayList<>();
-    private final Particle deadCloud = new ParticleCloud(0.2, 0.2, 0.2, 25);
+    private final Particle deadCloud = new ParticleCloud(0.2, 0.2, 0.2, 25).setSpeed(0);
 
     @EventHandler(ignoreCancelled = true)
     public void correctDamage(EntityDamageByEntityEvent e) {
@@ -33,19 +33,21 @@ public class HitboxListener implements Listener {
         for (Hitbox box : hitboxes) {
             if (box.sameEntity(attacker)) {
                 e.setDamage(box.getDamage());
+
                 return;
             }
 
             if (box.sameEntity(damaged)) {
-                e.setDamage(ARMOR, -box.getDefense());
-                e.setDamage(ARMOR, e.getDamage(ARMOR) - (e.getDamage() * (box.getDefensePercent() / 100)));
+                e.setDamage(ARMOR, -box.getDefense() - (e.getDamage() * box.getDefensePercent() / 100));
 
                 if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof Entity) {
                     box.getEnemy().onHit((Entity) ((Projectile) attacker).getShooter(), e.getFinalDamage());
+
                     return;
                 }
 
                 box.getEnemy().onHit(attacker, e.getFinalDamage());
+
                 return;
             }
         }
@@ -55,11 +57,13 @@ public class HitboxListener implements Listener {
     public void noNormalDamage(EntityDamageEvent e) {
         Entity entity = e.getEntity();
 
-        for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
+        for (Hitbox box : new ArrayList<>(hitboxes)) {
             if (!box.sameEntity(entity)) continue;
 
-            if (e.getCause() == DamageCause.SUFFOCATION || e.getCause() == DamageCause.DROWNING) {
+            if (e.getCause() == DamageCause.SUFFOCATION || e.getCause() == DamageCause.DROWNING || e.getCause() == DamageCause.CONTACT) {
                 e.setCancelled(true);
+
+                return;
             }
 
             if (((Slime) entity).getHealth() - e.getFinalDamage() <= 0) {
@@ -89,7 +93,6 @@ public class HitboxListener implements Listener {
         for (Hitbox box : hitboxes) {
             if (box.sameEntity(e.getEntity())) {
                 isHitbox = true;
-                break;
             }
         }
 
@@ -125,7 +128,6 @@ public class HitboxListener implements Listener {
         for (Hitbox box : hitboxes) {
             if (box.sameEntity(e.getEntity())) {
                 isHitbox = true;
-                break;
             }
         }
 
@@ -155,11 +157,5 @@ public class HitboxListener implements Listener {
 
     public static List<Hitbox> getHitboxes() {
         return hitboxes;
-    }
-
-    public static void onDisable() {
-        for (Hitbox box : hitboxes.toArray(new Hitbox[0])) {
-            box.remove(true);
-        }
     }
 }
