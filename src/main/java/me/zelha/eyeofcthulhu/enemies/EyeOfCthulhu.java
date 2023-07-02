@@ -12,8 +12,9 @@ import hm.zelha.particlesfx.util.Color;
 import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
+import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -163,7 +164,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         new BukkitRunnable() {
 
-            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private final Location location = getLocation();
             int i = 0;
 
             @Override
@@ -183,6 +184,12 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 if (++i == 120) cancel();
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    @Override
+    protected void startAI() {
+        colorizePhaseOne();
+        hoverAI(200);
     }
 
     @Override
@@ -219,17 +226,11 @@ public class EyeOfCthulhu extends ParticleEnemy {
             }
 
             if (damageMap.get(uuid) > 100) {
-                target = ((CraftLivingEntity) Bukkit.getPlayer(uuid)).getHandle();
 
+                target = (EntityLiving) ((CraftEntity) Bukkit.getPlayer(uuid)).getHandle();
                 damageMap.clear();
             }
         }
-    }
-
-    @Override
-    protected void startAI() {
-        colorizePhaseOne();
-        hoverAI(200);
     }
 
     private void hoverAI(int time) {
@@ -237,7 +238,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         currentAI = new BukkitRunnable() {
 
-            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private final Location location = getLocation();
             private final int servantSpawn = (time - 10) / (3 + rng.nextInt(2) + Math.max(location.getWorld().getDifficulty().ordinal() - 2, 0));
             private int i = 0;
 
@@ -295,7 +296,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
         currentAI = new BukkitRunnable() {
 
-            private final Location location = ((ParticleSphere) model.getShape(0)).getCenter();
+            private final Location location = getLocation();
             private final int dashTime = (int) Math.ceil(((time - (wait * dashes)) / dashes) + 1);
             private final int waitTime = wait + 1;
             private int ticks = 0;

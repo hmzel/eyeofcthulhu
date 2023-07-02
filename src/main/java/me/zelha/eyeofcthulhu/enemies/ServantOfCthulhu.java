@@ -71,13 +71,6 @@ public class ServantOfCthulhu extends ParticleEnemy {
     }
 
     @Override
-    public void onHit(Entity attacker, double damage) {
-        hitSound();
-
-        target = (EntityLiving) ((CraftEntity) attacker).getHandle();
-    }
-
-    @Override
     protected void startAI() {
         findTarget(25);
         hitSound();
@@ -138,6 +131,13 @@ public class ServantOfCthulhu extends ParticleEnemy {
                 damageNearby(center, 1);
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
+    }
+
+    @Override
+    public void onHit(Entity attacker, double damage) {
+        hitSound();
+
+        target = (EntityLiving) ((CraftEntity) attacker).getHandle();
     }
 }
 

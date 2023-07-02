@@ -8,10 +8,10 @@ import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
 import net.minecraft.server.v1_8_R3.EntityLiving;
-import net.minecraft.server.v1_8_R3.EntityPlayer;
-import org.bukkit.*;
+import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,15 +25,11 @@ public abstract class ParticleEnemy {
 
     protected static final ThreadLocalRandom rng = ThreadLocalRandom.current();
     protected final ParticleShapeCompound model = new ParticleShapeCompound();
-    protected Hitbox hitbox;
     protected EntityLiving target = null;
+    protected Hitbox hitbox;
     private BukkitTask despawner;
 
     protected ParticleEnemy() {
-    }
-
-    public void target(Entity e) {
-        target = (EntityLiving) ((CraftEntity) e).getHandle();
     }
 
     public void onDeath(boolean animate) {
@@ -41,9 +37,9 @@ public abstract class ParticleEnemy {
         despawner.cancel();
     }
 
-    public abstract void onHit(Entity attacker, double damage);
-
     protected abstract void startAI();
+
+    public abstract void onHit(Entity attacker, double damage);
 
     protected void startDespawner(Location location) {
         despawner = new BukkitRunnable() {
@@ -67,21 +63,15 @@ public abstract class ParticleEnemy {
                 if (!doDistanceCheck) return;
                 if (i % 20 != 0) return;
 
-                double closest = 9999;
+                double closest = Double.MAX_VALUE;
 
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (!p.getWorld().equals(location.getWorld())) continue;
-
-                    EntityPlayer nmsP = ((CraftPlayer) p).getHandle();
-
-                    l.zero().add(nmsP.locX, nmsP.locY, nmsP.locZ);
-
-                    if (l.distance(location) < closest) {
-                        closest = l.distance(location);
+                for (Player p : l.getWorld().getPlayers()) {
+                    if (p.getLocation(l).distanceSquared(location) < closest) {
+                        closest = l.distanceSquared(location);
                     }
                 }
 
-                if (closest > 100) {
+                if (closest > 10000) {
                     hitbox.remove(true);
                 }
             }
@@ -89,25 +79,16 @@ public abstract class ParticleEnemy {
     }
 
     protected void findTarget(double radius) {
-        Location center = ((ParticleSphere) model.getShape(0)).getCenter();
+        Location center = getLocation();
         Entity target = null;
         this.target = null;
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!center.getWorld().equals(p.getWorld())) continue;
-            if (p.getGameMode() != GameMode.SURVIVAL) continue;
+        for (Player p : center.getWorld().getPlayers()) {
+            if (p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE) continue;
 
             double distance = p.getLocation().distance(center);
 
-            if (distance > radius) continue;
-
-            if (target == null) {
-                target = p;
-
-                continue;
-            }
-
-            if (distance < target.getLocation().distance(center)) {
+            if (distance <= radius && (target == null || (distance < target.getLocation().distance(center)))) {
                 target = p;
             }
         }
@@ -115,18 +96,17 @@ public abstract class ParticleEnemy {
         if (target == null) {
             List<Entity> nearbyEntities = (ArrayList<Entity>) center.getWorld().getNearbyEntities(center, radius, radius, radius);
 
-            if (!nearbyEntities.isEmpty()) {
-                for (int i = 0; i < nearbyEntities.size(); i++) {
-                    Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size()));
+            for (int i = 0; i < nearbyEntities.size(); i++) {
+                Entity e = nearbyEntities.get(rng.nextInt(nearbyEntities.size()));
 
-                    if (e instanceof Player) continue;
-                    if (e instanceof Slime) continue;
-                    if (e instanceof Monster) continue;
-                    if (!(e instanceof LivingEntity)) continue;
+                if (e instanceof Player) continue;
+                if (e instanceof Slime) continue;
+                if (e instanceof Monster) continue;
+                if (!(e instanceof LivingEntity)) continue;
 
-                    target = e;
-                    break;
-                }
+                target = e;
+
+                break;
             }
         }
 
@@ -138,22 +118,11 @@ public abstract class ParticleEnemy {
     protected BukkitTask runAway() {
         return new BukkitRunnable() {
 
-            private final Location locationHelper = ((ParticleSphere) model.getShape(0)).getCenter().clone();
-            private final Vector vectorHelper = new Vector(0, 0, 0);
-            private boolean init = false;
+            private final Location locationHelper = getLocation().clone().add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
+            private final Vector vectorHelper = LVMath.subtractToVector(new Vector(), locationHelper, getLocation()).normalize().multiply(0.25);
 
             @Override
             public void run() {
-                if (!init) {
-                    init = true;
-
-                    locationHelper.zero();
-                    locationHelper.add(getLocation());
-                    locationHelper.add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
-                    LVMath.subtractToVector(vectorHelper, locationHelper, getLocation());
-                    vectorHelper.normalize().multiply(0.25);
-                }
-
                 locationHelper.add(vectorHelper);
                 model.move(vectorHelper);
                 faceAroundBody(locationHelper);
@@ -166,29 +135,27 @@ public abstract class ParticleEnemy {
         Shape tendrils = model.getShape(1);
         double[] direction = ParticleSFX.getDirection(l, body.getCenter());
         double pitchInc, yawInc;
-        double increase = 15;
         double pitch = body.getPitch();
         double yaw = body.getYaw();
         double wantedPitch = direction[0];
         double wantedYaw = direction[1];
-        double difference = Math.abs(yaw - wantedYaw);
 
-        if (pitch + increase <= wantedPitch) {
-            pitchInc = increase;
-        } else if (pitch - increase >= wantedPitch) {
-            pitchInc = -increase;
+        if (pitch + 15 <= wantedPitch) {
+            pitchInc = 15;
+        } else if (pitch - 15 >= wantedPitch) {
+            pitchInc = -15;
         } else {
             pitchInc = wantedPitch - pitch;
         }
 
-        if (yaw + (360 - wantedYaw) < difference) {
-            yawInc = -increase;
-        } else if (wantedYaw + (360 - yaw) < difference) {
-            yawInc = increase;
-        } else if (yaw + increase <= wantedYaw) {
-            yawInc = increase;
-        } else if (yaw - increase >= wantedYaw) {
-            yawInc = -increase;
+        if (yaw + (360 - wantedYaw) < Math.abs(yaw - wantedYaw)) {
+            yawInc = -15;
+        } else if (wantedYaw + (360 - yaw) < Math.abs(yaw - wantedYaw)) {
+            yawInc = 15;
+        } else if (yaw + 15 <= wantedYaw) {
+            yawInc = 15;
+        } else if (yaw - 15 >= wantedYaw) {
+            yawInc = -15;
         } else {
             yawInc = wantedYaw - yaw;
         }
@@ -223,15 +190,11 @@ public abstract class ParticleEnemy {
     protected void hitSound() {
         Location center = getLocation();
 
-        for (Entity e : center.getWorld().getNearbyEntities(center, 25, 25, 25)) {
-            if (!(e instanceof Player)) continue;
+        for (Player p : center.getWorld().getPlayers()) {
+            if (p.getLocation().distanceSquared(center) > 625) continue;
 
-            ((Player) e).playSound(center, "mob.slime.attack", 3, 1.5f);
+            p.playSound(center, "mob.slime.attack", 3, 1.5f);
         }
-    }
-
-    public ParticleShapeCompound getModel() {
-        return model;
     }
 
     public Location getLocation() {
