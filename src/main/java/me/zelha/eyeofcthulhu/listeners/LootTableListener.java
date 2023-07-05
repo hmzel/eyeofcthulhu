@@ -51,7 +51,6 @@ public class LootTableListener implements Listener {
         if (!((Chest) holder).getMetadata("WillHaveEye").get(0).asBoolean()) return;
 
         addSummoningItem(holder);
-
         ((Chest) holder).removeMetadata("WillHaveEye", Main.getInstance());
     }
 
@@ -65,6 +64,7 @@ public class LootTableListener implements Listener {
 
             if (item == null || item.getType() == Material.AIR) {
                 inv.setItem(i, Main.getSummonItem());
+
                 break;
             }
         }

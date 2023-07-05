@@ -26,9 +26,9 @@ public class Hitbox {
 
     public Hitbox(ParticleEnemy enemy, Location location, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
-        this.l = location.clone().add(0, -(size / 3.5), 0);
         this.damage = damage;
-        this.hitbox = (Slime) location.getWorld().spawnEntity(l, EntityType.SLIME);
+        l = location.clone().add(0, -(size / 3.5), 0);
+        hitbox = (Slime) location.getWorld().spawnEntity(l, EntityType.SLIME);
         EntitySlime nmsSlime = ((CraftSlime) hitbox).getHandle();
         NBTTagCompound tag = nmsSlime.getNBTTag();
 
@@ -56,6 +56,7 @@ public class Hitbox {
             public void run() {
                 if (hitbox == null) {
                     cancel();
+
                     return;
                 }
 
@@ -86,14 +87,6 @@ public class Hitbox {
         return hitbox.getUniqueId().equals(e.getUniqueId());
     }
 
-    public void setHealth(int health) {
-        hitbox.setHealth(health);
-
-        if (bar != null) {
-            bar.setHealth(health);
-        }
-    }
-
     public void setDefense(double defense) {
         this.defense = defense;
     }
@@ -106,10 +99,6 @@ public class Hitbox {
         this.damage = damage;
     }
 
-    public double getBarHealth() {
-        return bar.getHealth();
-    }
-
     public double getDefense() {
         return defense;
     }
@@ -120,10 +109,6 @@ public class Hitbox {
 
     public double getDamage() {
         return damage;
-    }
-
-    public BossBar getBar() {
-        return bar;
     }
 
     public Slime getSlime() {

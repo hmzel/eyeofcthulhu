@@ -40,10 +40,7 @@ public class SummonItemListener implements Listener {
 
         for (Hitbox box : HitboxListener.getHitboxes()) {
             if (!box.getSlime().getName().equals("Eye of Cthulhu")) continue;
-
-            double distance = box.getSlime().getLocation().distance(l);
-
-            if (!Double.isNaN(distance) && distance > 1000) continue;
+            if (box.getSlime().getLocation().distanceSquared(l) > 1000000) continue;
 
             return;
         }
@@ -51,10 +48,7 @@ public class SummonItemListener implements Listener {
         EyeOfCthulhu eye = new EyeOfCthulhu(l);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            double distance = l.distance(player.getLocation());
-
-            if (distance > 100) continue;
-            if (Double.isNaN(distance)) continue;
+            if (l.distanceSquared(player.getLocation()) > 10000) continue;
 
             player.sendMessage("§5Eye of Cthulhu has awoken!");
             player.playSound(eye.getLocation(), Sound.ENDERDRAGON_GROWL, 100, 1.5f);
