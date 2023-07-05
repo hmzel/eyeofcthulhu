@@ -7,6 +7,7 @@ import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.shapers.ParticleLine;
 import hm.zelha.particlesfx.shapers.ParticleSphere;
 import hm.zelha.particlesfx.shapers.ParticleSphereCSA;
+import hm.zelha.particlesfx.shapers.parents.ParticleShaper;
 import hm.zelha.particlesfx.shapers.parents.Shape;
 import hm.zelha.particlesfx.util.Color;
 import hm.zelha.particlesfx.util.*;
@@ -23,20 +24,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EyeOfCthulhu extends ParticleEnemy {
 
-    private static final Particle WHITE = new ParticleDustColored(Color.WHITE, 100, 0.1, 0.1, 0.1, 1).setPureColor(true);
-    private static final Particle DIRTY_WHITE = new ParticleDustColored(new Color(255, 255, 200), 75);
-    private static final Particle BLACK = new ParticleDustColored(Color.BLACK, 100, 0.1, 0.1, 0.1, 2);
-    private static final Particle GRAY = new ParticleDustColored(Color.GRAY, 35, 0.1, 0.1, 0.1, 2);
-    private static final Particle RED = new ParticleDustColored(Color.RED, 85, 0.1, 0.1, 0.1, 1);
-    private static final Particle TENDRIL_RED = new ParticleDustColored(Color.RED, 75);
-    private static final Particle BLUE = new ParticleDustColored(Color.BLUE, 100, 0.1, 0.1, 0.1, 1);
-    private static final Particle OLIVE = new ParticleDustColored(Color.OLIVE, 100, 0.1, 0.1, 0.1, 2);
-    private static final Particle NONE = new ParticleNull();
-    private static final Particle EXPLOSION = new ParticleExplosionEmitter();
+    private static final Map<String, Particle> particleMap = new HashMap<>();
     private final Map<UUID, Double> damageMap = new HashMap<>();
     private final Location locationHelper;
     private final Vector vectorHelper = new Vector(0, 0, 0);
@@ -44,11 +40,22 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private boolean phaseTwo = false;
     private int servantCount = 0;
 
+    static {
+        particleMap.put("RED", new ParticleDustColored(Color.RED, 85, 0.1, 0.1, 0.1, 1));
+        particleMap.put("BLUE", new ParticleDustColored(Color.BLUE, 100, 0.1, 0.1, 0.1, 1));
+        particleMap.put("WHITE", new ParticleDustColored(Color.WHITE, 100, 0.1, 0.1, 0.1, 1).setPureColor(true));
+        particleMap.put("DIRTY_WHITE", new ParticleDustColored(new Color(255, 255, 200), 75));
+        particleMap.put("BLACK", new ParticleDustColored(Color.BLACK, 100, 0.1, 0.1, 0.1, 2));
+        particleMap.put("GRAY", new ParticleDustColored(Color.GRAY, 35, 0.1, 0.1, 0.1, 2));
+        particleMap.put("OLIVE", new ParticleDustColored(Color.OLIVE, 100, 0.1, 0.1, 0.1, 2));
+        particleMap.put("NONE", new ParticleNull());
+    }
+
     public EyeOfCthulhu(Location location) {
         World world = location.getWorld();
         ParticleShapeCompound tendrils = new ParticleShapeCompound();
         LocationSafe center = new LocationSafe(location).add(rng.nextInt(100) - 50, 150, rng.nextInt(100) - 50);
-        ParticleSphereCSA body = new ParticleSphereCSA(WHITE, center, 3, 20, 750);
+        ParticleSphereCSA body = new ParticleSphereCSA(particleMap.get("WHITE"), center, 3, 20, 750);
         hitbox = new Hitbox(this, center, 7.5, 7 + (5 * (world.getDifficulty().ordinal() - 1)), 1200 + (394 * (world.getDifficulty().ordinal() - 1)), "Eye of Cthulhu", true);
         locationHelper = center.clone();
 
@@ -115,7 +122,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
         }
 
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril = new ParticleLine(TENDRIL_RED, 30,
+            ParticleLine tendril = new ParticleLine(new ParticleDustColored(Color.RED, 75), 30,
                     new LocationSafe(center).add(0, 6.5, 0),
                     new LocationSafe(center).add(0, 3, 0)
             );
@@ -165,6 +172,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
         new BukkitRunnable() {
 
             private final Location location = getLocation();
+            private final Particle explosion = new ParticleExplosionEmitter();
             int i = 0;
 
             @Override
@@ -179,7 +187,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 orb.setExperience(rng.nextInt(20) + 10);
                 vectorHelper.setX(rng.nextDouble() - 0.5).setY(rng.nextDouble() - 0.5).setZ(rng.nextDouble() - 0.5);
                 orb.setVelocity(vectorHelper);
-                EXPLOSION.display(location);
+                explosion.display(location);
 
                 if (++i == 120) cancel();
             }
@@ -188,7 +196,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
     @Override
     protected void startAI() {
-        colorizePhaseOne();
+        loadColorFile("PhaseOneColor");
         hoverAI(200);
     }
 
@@ -405,7 +413,13 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 body.rotate(rotation, 0, 0);
 
                 if (ticks == 50) {
-                    colorizePhaseTwo();
+                    int removeIndex = body.getSecondaryParticleAmount() - 6;
+
+                    for (int i = removeIndex; i < removeIndex + 6; i++) {
+                        body.removeParticle(removeIndex);
+                    }
+
+                    loadColorFile("PhaseTwoColor");
                     hitbox.setDefense(0);
                     hitbox.setDamage(9 + (6 * (center.getWorld().getDifficulty().ordinal() - 1)));
 
@@ -439,6 +453,22 @@ public class EyeOfCthulhu extends ParticleEnemy {
         }.runTaskTimer(Main.getInstance(), 0, 1);
     }
 
+    private void loadColorFile(String name) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Main.getInstance().getResource(name)));
+
+        for (String s : reader.lines().collect(Collectors.toList())) {
+            String[] strings = s.split(", ");
+
+            ((ParticleShaper) model.getShape(0)).addParticle(particleMap.get(strings[0]), Integer.parseInt(strings[1]));
+        }
+
+        try {
+            reader.close();
+        } catch (IOException err) {
+            err.printStackTrace();
+        }
+    }
+
     private void dayCheck() {
         if (locationHelper.getWorld().getTime() >= 12300 && locationHelper.getWorld().getTime() <= 23850) return;
 
@@ -455,255 +485,5 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
             ((Player) e).playSound(center, Sound.ENDERDRAGON_GROWL, 3, (float) pitch);
         }
-    }
-
-    private void colorizePhaseOne() {
-        ParticleSphere body = (ParticleSphere) model.getShape(0);
-
-        body.addParticle(RED, 0);
-        body.addParticle(WHITE, 96);
-        body.addParticle(RED, 103);
-        body.addParticle(WHITE, 106);
-        body.addParticle(RED, 114);
-        body.addParticle(WHITE, 116);
-        body.addParticle(RED, 123);
-        body.addParticle(WHITE, 125);
-        body.addParticle(RED, 131);
-        body.addParticle(WHITE, 134);
-        body.addParticle(RED, 139);
-        body.addParticle(WHITE, 141);
-        body.addParticle(RED, 142);
-        body.addParticle(WHITE, 143);
-        body.addParticle(RED, 151);
-        body.addParticle(WHITE, 154);
-        body.addParticle(RED, 163);
-        body.addParticle(WHITE, 165);
-        body.addParticle(RED, 176);
-        body.addParticle(WHITE, 178);
-        body.addParticle(RED, 183);
-        body.addParticle(WHITE, 184);
-        body.addParticle(RED, 185);
-        body.addParticle(WHITE, 187);
-        body.addParticle(RED, 191);
-        body.addParticle(WHITE, 194);
-        body.addParticle(RED, 195);
-        body.addParticle(WHITE, 197);
-        body.addParticle(RED, 204);
-        body.addParticle(WHITE, 205);
-        body.addParticle(RED, 206);
-        body.addParticle(WHITE, 208);
-        body.addParticle(RED, 218);
-        body.addParticle(WHITE, 220);
-        body.addParticle(RED, 231);
-        body.addParticle(WHITE, 234);
-        body.addParticle(RED, 239);
-        body.addParticle(WHITE, 240);
-        body.addParticle(RED, 241);
-        body.addParticle(WHITE, 243);
-        body.addParticle(RED, 247);
-        body.addParticle(WHITE, 250);
-        body.addParticle(RED, 253);
-        body.addParticle(WHITE, 255);
-        body.addParticle(RED, 261);
-        body.addParticle(WHITE, 263);
-        body.addParticle(RED, 264);
-        body.addParticle(WHITE, 266);
-        body.addParticle(RED, 276);
-        body.addParticle(WHITE, 279);
-        body.addParticle(RED, 290);
-        body.addParticle(WHITE, 293);
-        body.addParticle(RED, 294);
-        body.addParticle(WHITE, 295);
-        body.addParticle(RED, 298);
-        body.addParticle(WHITE, 299);
-        body.addParticle(RED, 302);
-        body.addParticle(WHITE, 304);
-        body.addParticle(RED, 308);
-        body.addParticle(WHITE, 311);
-        body.addParticle(RED, 313);
-        body.addParticle(WHITE, 316);
-        body.addParticle(RED, 321);
-        body.addParticle(WHITE, 323);
-        body.addParticle(RED, 325);
-        body.addParticle(WHITE, 327);
-        body.addParticle(RED, 336);
-        body.addParticle(WHITE, 338);
-        body.addParticle(RED, 339);
-        body.addParticle(WHITE, 341);
-        body.addParticle(RED, 350);
-        body.addParticle(WHITE, 353);
-        body.addParticle(RED, 355);
-        body.addParticle(WHITE, 356);
-        body.addParticle(RED, 359);
-        body.addParticle(WHITE, 360);
-        body.addParticle(RED, 364);
-        body.addParticle(WHITE, 366);
-        body.addParticle(RED, 370);
-        body.addParticle(WHITE, 373);
-        body.addParticle(RED, 376);
-        body.addParticle(WHITE, 378);
-        body.addParticle(RED, 381);
-        body.addParticle(WHITE, 384);
-        body.addParticle(RED, 387);
-        body.addParticle(WHITE, 389);
-        body.addParticle(RED, 396);
-        body.addParticle(WHITE, 398);
-        body.addParticle(RED, 400);
-        body.addParticle(WHITE, 403);
-        body.addParticle(RED, 410);
-        body.addParticle(WHITE, 414);
-        body.addParticle(RED, 416);
-        body.addParticle(WHITE, 418);
-        body.addParticle(RED, 420);
-        body.addParticle(WHITE, 422);
-        body.addParticle(RED, 426);
-        body.addParticle(WHITE, 428);
-        body.addParticle(RED, 430);
-        body.addParticle(WHITE, 432);
-        body.addParticle(RED, 433);
-        body.addParticle(WHITE, 435);
-        body.addParticle(RED, 437);
-        body.addParticle(WHITE, 439);
-        body.addParticle(RED, 441);
-        body.addParticle(WHITE, 444);
-        body.addParticle(RED, 447);
-        body.addParticle(WHITE, 450);
-        body.addParticle(RED, 450);
-        body.addParticle(WHITE, 451);
-        body.addParticle(RED, 456);
-        body.addParticle(WHITE, 458);
-        body.addParticle(RED, 461);
-        body.addParticle(WHITE, 464);
-        body.addParticle(RED, 469);
-        body.addParticle(WHITE, 472);
-        body.addParticle(RED, 473);
-        body.addParticle(WHITE, 475);
-        body.addParticle(RED, 477);
-        body.addParticle(WHITE, 480);
-        body.addParticle(RED, 481);
-        body.addParticle(WHITE, 483);
-        body.addParticle(RED, 485);
-        body.addParticle(WHITE, 487);
-        body.addParticle(RED, 489);
-        body.addParticle(WHITE, 491);
-        body.addParticle(RED, 493);
-        body.addParticle(WHITE, 495);
-        body.addParticle(RED, 497);
-        body.addParticle(WHITE, 499);
-        body.addParticle(RED, 500);
-        body.addParticle(WHITE, 503);
-        body.addParticle(RED, 505);
-        body.addParticle(WHITE, 507);
-        body.addParticle(RED, 509);
-        body.addParticle(WHITE, 510);
-        body.addParticle(RED, 513);
-        body.addParticle(WHITE, 515);
-        body.addParticle(RED, 519);
-        body.addParticle(WHITE, 522);
-        body.addParticle(RED, 525);
-        body.addParticle(WHITE, 528);
-        body.addParticle(RED, 530);
-        body.addParticle(WHITE, 532);
-        body.addParticle(RED, 533);
-        body.addParticle(WHITE, 535);
-        body.addParticle(RED, 544);
-        body.addParticle(BLUE, 595);
-        body.addParticle(OLIVE, 677);
-        body.addParticle(GRAY, 706);
-        body.addParticle(BLACK, 725);
-    }
-
-    //assumes colorizePhaseOne has already been ran
-    private void colorizePhaseTwo() {
-        ParticleSphere body = (ParticleSphere) model.getShape(0);
-        int removeIndex = body.getSecondaryParticleAmount() - 6;
-
-        for (int i = removeIndex; i < body.getSecondaryParticleAmount(); i++) {
-            body.removeParticle(removeIndex);
-        }
-
-        body.addParticle(NONE, 537);
-        body.addParticle(RED, 541);
-        body.addParticle(DIRTY_WHITE, 542);
-        body.addParticle(RED, 544);
-        body.addParticle(DIRTY_WHITE, 546);
-        body.addParticle(RED, 548);
-        body.addParticle(DIRTY_WHITE, 550);
-        body.addParticle(RED, 552);
-        body.addParticle(DIRTY_WHITE, 554);
-        body.addParticle(RED, 556);
-        body.addParticle(DIRTY_WHITE, 558);
-        body.addParticle(RED, 560);
-        body.addParticle(NONE, 561);
-        body.addParticle(RED, 567);
-        body.addParticle(DIRTY_WHITE, 568);
-        body.addParticle(RED, 570);
-        body.addParticle(DIRTY_WHITE, 572);
-        body.addParticle(RED, 574);
-        body.addParticle(DIRTY_WHITE, 576);
-        body.addParticle(RED, 578);
-        body.addParticle(DIRTY_WHITE, 580);
-        body.addParticle(RED, 582);
-        body.addParticle(DIRTY_WHITE, 584);
-        body.addParticle(RED, 586);
-        body.addParticle(NONE, 587);
-        body.addParticle(DIRTY_WHITE, 593);
-        body.addParticle(RED, 595);
-        body.addParticle(DIRTY_WHITE, 597);
-        body.addParticle(RED, 599);
-        body.addParticle(DIRTY_WHITE, 601);
-        body.addParticle(RED, 603);
-        body.addParticle(DIRTY_WHITE, 604);
-        body.addParticle(RED, 606);
-        body.addParticle(DIRTY_WHITE, 607);
-        body.addParticle(NONE, 609);
-        body.addParticle(DIRTY_WHITE, 616);
-        body.addParticle(RED, 618);
-        body.addParticle(DIRTY_WHITE, 619);
-        body.addParticle(RED, 621);
-        body.addParticle(DIRTY_WHITE, 623);
-        body.addParticle(RED, 625);
-        body.addParticle(DIRTY_WHITE, 626);
-        body.addParticle(RED, 628);
-        body.addParticle(DIRTY_WHITE, 630);
-        body.addParticle(NONE, 632);
-        body.addParticle(DIRTY_WHITE, 637);
-        body.addParticle(NONE, 639);
-        body.addParticle(DIRTY_WHITE, 641);
-        body.addParticle(RED, 643);
-        body.addParticle(DIRTY_WHITE, 644);
-        body.addParticle(NONE, 646);
-        body.addParticle(DIRTY_WHITE, 647);
-        body.addParticle(NONE, 649);
-        body.addParticle(DIRTY_WHITE, 650);
-        body.addParticle(NONE, 652);
-        body.addParticle(DIRTY_WHITE, 656);
-        body.addParticle(NONE, 658);
-        body.addParticle(DIRTY_WHITE, 659);
-        body.addParticle(RED, 661);
-        body.addParticle(DIRTY_WHITE, 663);
-        body.addParticle(RED, 665);
-        body.addParticle(DIRTY_WHITE, 666);
-        body.addParticle(NONE, 668);
-        body.addParticle(DIRTY_WHITE, 669);
-        body.addParticle(NONE, 671);
-        body.addParticle(DIRTY_WHITE, 674);
-        body.addParticle(NONE, 676);
-        body.addParticle(DIRTY_WHITE, 678);
-        body.addParticle(NONE, 679);
-        body.addParticle(DIRTY_WHITE, 681);
-        body.addParticle(NONE, 682);
-        body.addParticle(DIRTY_WHITE, 685);
-        body.addParticle(NONE, 686);
-        body.addParticle(DIRTY_WHITE, 689);
-        body.addParticle(NONE, 690);
-        body.addParticle(DIRTY_WHITE, 692);
-        body.addParticle(NONE, 693);
-        body.addParticle(DIRTY_WHITE, 695);
-        body.addParticle(NONE, 696);
-        body.addParticle(DIRTY_WHITE, 697);
-        body.addParticle(NONE, 698);
-        body.addParticle(DIRTY_WHITE, 700);
-        body.addParticle(NONE, 701);
     }
 }
