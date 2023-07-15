@@ -3,9 +3,14 @@ package me.zelha.eyeofcthulhu.util;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.enemies.ParticleEnemy;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -27,7 +32,7 @@ public class Hitbox {
         createHitBox(location, size, maxHealth, displayName);
 
         if (bossBar) {
-            this.bar = new BossBar(location, displayName, maxHealth);
+            this.bar = Bukkit.createBossBar(displayName, BarColor.PURPLE, BarStyle.SEGMENTED_10);
         }
 
         new BukkitRunnable() {
@@ -46,7 +51,15 @@ public class Hitbox {
                 hitbox.teleport(l.zero().add(location).add(0, -(size / 3.5), 0));
 
                 if (bar != null) {
-                    bar.setHealth(hitbox.getHealth());
+                    bar.setProgress(hitbox.getHealth() / maxHealth);
+
+                    for (Player p : hitbox.getWorld().getPlayers()) {
+                        if (p.getLocation().distanceSquared(l) < 10000) {
+                            bar.addPlayer(p);
+                        } else {
+                            bar.removePlayer(p);
+                        }
+                    }
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 1);
@@ -73,7 +86,8 @@ public class Hitbox {
         HitboxListener.unregisterHitbox(this);
 
         if (bar != null) {
-            bar.remove();
+            bar.removeAll();
+            bar.setVisible(false);
         }
 
         hitbox = null;
