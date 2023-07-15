@@ -23,6 +23,7 @@ public class Hitbox {
     private Slime hitbox;
     private double defense = 0;
     private double defensePercent = 0;
+    private long lastHit = 0;
 
     public Hitbox(ParticleEnemy enemy, Location location, double size, double damage, double maxHealth, String displayName, boolean bossBar) {
         this.enemy = enemy;
@@ -77,6 +78,7 @@ public class Hitbox {
         hitbox.setMaxHealth(maxHealth);
         hitbox.setHealth(maxHealth);
         hitbox.setInvisible(true);
+        hitbox.setMaximumNoDamageTicks(0);
         hitbox.setCustomName(displayName);
     }
 
@@ -91,6 +93,10 @@ public class Hitbox {
         }
 
         hitbox = null;
+    }
+
+    public void resetLastHit() {
+        lastHit = l.getWorld().getGameTime();
     }
 
     public boolean sameEntity(Entity e) {
@@ -127,5 +133,9 @@ public class Hitbox {
 
     public ParticleEnemy getEnemy() {
         return enemy;
+    }
+
+    public long getLastHit() {
+        return lastHit;
     }
 }

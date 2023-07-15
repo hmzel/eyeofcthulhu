@@ -87,23 +87,18 @@ public class HitboxListener implements Listener {
     public void bypassImmunityFrames(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof Slime)) return;
 
-        boolean isHitbox = false;
+        Hitbox box = null;
 
-        for (Hitbox box : hitboxes) {
-            if (box.sameEntity(e.getEntity())) {
-                isHitbox = true;
+        for (Hitbox hitbox : hitboxes) {
+            if (hitbox.sameEntity(e.getEntity())) {
+                box = hitbox;
             }
         }
 
-        if (!isHitbox) return;
+        if (box == null) return;
+        if (!(box.getSlime().getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
 
-        LivingEntity entity = (LivingEntity) e.getEntity();
-
-        entity.setMaximumNoDamageTicks(0);
-
-        if (!(entity.getLastDamageCause() instanceof EntityDamageByEntityEvent)) return;
-
-        Entity attacker = ((EntityDamageByEntityEvent) entity.getLastDamageCause()).getDamager();
+        Entity attacker = ((EntityDamageByEntityEvent) box.getSlime().getLastDamageCause()).getDamager();
 
         if (attacker instanceof Projectile && ((Projectile) attacker).getShooter() instanceof LivingEntity) {
             attacker = (Entity) ((Projectile) attacker).getShooter();
@@ -112,8 +107,10 @@ public class HitboxListener implements Listener {
         if (!(attacker instanceof LivingEntity)) return;
         if (!attacker.equals(e.getDamager())) return;
 
-        if (entity.getNoDamageTicks() > 0) {
+        if (attacker.getWorld().getGameTime() - box.getLastHit() <= 10) {
             e.setCancelled(true);
+        } else {
+            box.resetLastHit();
         }
     }
 
@@ -122,17 +119,17 @@ public class HitboxListener implements Listener {
         if (e instanceof EntityDamageByEntityEvent) return;
         if (!(e.getEntity() instanceof Slime)) return;
 
-        boolean isHitbox = false;
+        Hitbox box = null;
 
-        for (Hitbox box : hitboxes) {
-            if (box.sameEntity(e.getEntity())) {
-                isHitbox = true;
+        for (Hitbox hitbox : hitboxes) {
+            if (hitbox.sameEntity(e.getEntity())) {
+                box = hitbox;
             }
         }
 
-        if (!isHitbox) return;
+        if (box == null) return;
 
-        if (((Slime) e.getEntity()).getNoDamageTicks() > 0) {
+        if (box.getSlime().getWorld().getGameTime() - box.getLastHit() <= 10) {
             e.setCancelled(true);
         }
     }
