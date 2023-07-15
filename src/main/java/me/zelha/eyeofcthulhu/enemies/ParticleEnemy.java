@@ -7,11 +7,10 @@ import hm.zelha.particlesfx.util.ParticleSFX;
 import hm.zelha.particlesfx.util.ParticleShapeCompound;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
+import org.bukkit.Sound;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -25,7 +24,7 @@ public abstract class ParticleEnemy {
 
     protected static final ThreadLocalRandom rng = ThreadLocalRandom.current();
     protected final ParticleShapeCompound model = new ParticleShapeCompound();
-    protected EntityLiving target = null;
+    protected LivingEntity target = null;
     protected Hitbox hitbox;
     private BukkitTask despawner;
 
@@ -112,7 +111,7 @@ public abstract class ParticleEnemy {
 
         if (target == null) return;
 
-        this.target = (EntityLiving) ((CraftEntity) target).getHandle();
+        this.target = (LivingEntity) target;
     }
 
     protected BukkitTask runAway() {
@@ -174,10 +173,10 @@ public abstract class ParticleEnemy {
     }
 
     protected void damageNearby(Location location, double radius) {
-        for (Entity e : location.getWorld().getNearbyEntities(location, radius, radius, radius)) {
-            if (e instanceof Player) continue;
+        for (Entity e : location.getWorld().getEntities()) {
+            if (location.distanceSquared(e.getLocation()) > Math.pow(radius, 2)) continue;
 
-            if (!e.getUniqueId().equals(target.getUniqueID())) {
+            if (!e.getUniqueId().equals(target.getUniqueId())) {
                 if (e instanceof Monster) continue;
                 if (e instanceof Slime) continue;
                 if (!(e instanceof LivingEntity)) continue;
@@ -193,7 +192,7 @@ public abstract class ParticleEnemy {
         for (Player p : center.getWorld().getPlayers()) {
             if (p.getLocation().distanceSquared(center) > 625) continue;
 
-            p.playSound(center, "mob.slime.attack", 3, 1.5f);
+            p.playSound(center, Sound.ENTITY_SLIME_ATTACK, 3, 1.5f);
         }
     }
 

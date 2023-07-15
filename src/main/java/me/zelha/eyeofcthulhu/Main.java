@@ -21,7 +21,7 @@ public final class Main extends JavaPlugin {
     public static Main instance;
 
     static {
-        summonItem = new ItemStack(Material.SKULL_ITEM, 1, (byte) 3);
+        summonItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) summonItem.getItemMeta();
 
         meta.setOwner("HalfCourt93");

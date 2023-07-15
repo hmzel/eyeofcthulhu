@@ -9,10 +9,9 @@ import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.listeners.HitboxListener;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -20,7 +19,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
 
     private static final Particle WHITE = new ParticleDustColored(Color.WHITE).setPureColor(true).setRadius(32);
     private static final Particle BLACK = new ParticleDustColored(Color.BLACK).setRadius(32);
-    private static final Particle RED = new ParticleDustColored(Color.RED, 85).setRadius(32);
+    private static final Particle RED = new ParticleDustColored(new Color(217, 0, 0)).setRadius(32);
     private static final Particle PURPLE = new ParticleDustColored(Color.PURPLE).setRadius(32);
     private final EyeOfCthulhu owner;
 
@@ -32,7 +31,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
         hitbox = new Hitbox(this, center, 1, center.getWorld().getDifficulty().ordinal(), 10 + (5 * (center.getWorld().getDifficulty().ordinal() - 1)), "Servant of Cthulhu", false);
 
         for (int i = 0; i < 3; i++) {
-            ParticleLine tendril = new ParticleLine(new ParticleDustColored(Color.RED, 75).setRadius(32), 4,
+            ParticleLine tendril = new ParticleLine(new ParticleDustColored(new Color(191, 0, 0)).setRadius(32), 4,
                     new LocationSafe(center).add(0, 1, 0),
                     new LocationSafe(center).add(0, 0.5, 0)
             );
@@ -98,7 +97,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
+                if (target == null || !target.isValid() || target.getHealth() <= 0) {
                     findTarget(25);
 
                     if (target == null) {
@@ -109,7 +108,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                lHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                target.getLocation(lHelper).add(0, target.getBoundingBox().getHeight() / 2, 0);
                 faceAroundBody(lHelper);
                 LVMath.subtractToVector(vHelper, lHelper, center);
                 vHelper.normalize().multiply(0.2);
@@ -137,7 +136,7 @@ public class ServantOfCthulhu extends ParticleEnemy {
     public void onHit(Entity attacker, double damage) {
         hitSound();
 
-        target = (EntityLiving) ((CraftEntity) attacker).getHandle();
+        target = (LivingEntity) attacker;
     }
 }
 

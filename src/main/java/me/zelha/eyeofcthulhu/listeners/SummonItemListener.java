@@ -51,13 +51,9 @@ public class SummonItemListener implements Listener {
             if (l.distanceSquared(player.getLocation()) > 10000) continue;
 
             player.sendMessage("§5Eye of Cthulhu has awoken!");
-            player.playSound(eye.getLocation(), Sound.ENDERDRAGON_GROWL, 100, 1.5f);
+            player.playSound(eye.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 100, 1.5f);
         }
 
-        if (item.getAmount() == 1) {
-            p.setItemInHand(new ItemStack(Material.AIR));
-        } else {
-            item.setAmount(item.getAmount() - 1);
-        }
+        item.setAmount(item.getAmount() - 1);
     }
 }

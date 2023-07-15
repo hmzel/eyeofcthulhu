@@ -4,7 +4,6 @@ import hm.zelha.particlesfx.particles.ParticleCloud;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -113,7 +112,7 @@ public class HitboxListener implements Listener {
         if (!(attacker instanceof LivingEntity)) return;
         if (!attacker.equals(e.getDamager())) return;
 
-        if (((CraftLivingEntity) entity).getHandle().hurtTicks > 0) {
+        if (entity.getNoDamageTicks() > 0) {
             e.setCancelled(true);
         }
     }
@@ -133,7 +132,7 @@ public class HitboxListener implements Listener {
 
         if (!isHitbox) return;
 
-        if (((CraftLivingEntity) e.getEntity()).getHandle().hurtTicks > 0) {
+        if (((Slime) e.getEntity()).getNoDamageTicks() > 0) {
             e.setCancelled(true);
         }
     }

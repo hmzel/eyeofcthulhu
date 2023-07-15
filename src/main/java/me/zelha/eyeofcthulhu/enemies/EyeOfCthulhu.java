@@ -13,9 +13,7 @@ import hm.zelha.particlesfx.util.Color;
 import hm.zelha.particlesfx.util.*;
 import me.zelha.eyeofcthulhu.Main;
 import me.zelha.eyeofcthulhu.util.Hitbox;
-import net.minecraft.server.v1_8_R3.EntityLiving;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ExperienceOrb;
@@ -41,13 +39,13 @@ public class EyeOfCthulhu extends ParticleEnemy {
     private int servantCount = 0;
 
     static {
-        particleMap.put("RED", new ParticleDustColored(Color.RED, 85, 0.1, 0.1, 0.1, 1));
-        particleMap.put("BLUE", new ParticleDustColored(Color.BLUE, 100, 0.1, 0.1, 0.1, 1));
-        particleMap.put("WHITE", new ParticleDustColored(Color.WHITE, 100, 0.1, 0.1, 0.1, 1).setPureColor(true));
-        particleMap.put("DIRTY_WHITE", new ParticleDustColored(new Color(255, 255, 200), 75));
-        particleMap.put("BLACK", new ParticleDustColored(Color.BLACK, 100, 0.1, 0.1, 0.1, 2));
-        particleMap.put("GRAY", new ParticleDustColored(Color.GRAY, 35, 0.1, 0.1, 0.1, 2));
-        particleMap.put("OLIVE", new ParticleDustColored(Color.OLIVE, 100, 0.1, 0.1, 0.1, 2));
+        particleMap.put("RED", new ParticleDustColored(new Color(217, 0, 0), 0.1, 0.1, 0.1));
+        particleMap.put("BLUE", new ParticleDustColored(Color.BLUE, 0.1, 0.1, 0.1));
+        particleMap.put("WHITE", new ParticleDustColored(Color.WHITE, 0.1, 0.1, 0.1).setPureColor(true));
+        particleMap.put("DIRTY_WHITE", new ParticleDustColored(new Color(191, 191, 150)));
+        particleMap.put("BLACK", new ParticleDustColored(Color.BLACK, 0.1, 0.1, 0.1, 2));
+        particleMap.put("GRAY", new ParticleDustColored(new Color(45, 45, 45), 0.1, 0.1, 0.1, 2));
+        particleMap.put("OLIVE", new ParticleDustColored(Color.OLIVE, 0.1, 0.1, 0.1, 2));
         particleMap.put("NONE", new ParticleNull());
     }
 
@@ -122,7 +120,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
         }
 
         for (int i = 0; i < 15; i++) {
-            ParticleLine tendril = new ParticleLine(new ParticleDustColored(Color.RED, 75), 30,
+            ParticleLine tendril = new ParticleLine(new ParticleDustColored(new Color(191, 0, 0)), 30,
                     new LocationSafe(center).add(0, 6.5, 0),
                     new LocationSafe(center).add(0, 3, 0)
             );
@@ -235,7 +233,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
 
             if (damageMap.get(uuid) > 100) {
 
-                target = (EntityLiving) ((CraftEntity) Bukkit.getPlayer(uuid)).getHandle();
+                target = Bukkit.getPlayer(uuid);
                 damageMap.clear();
             }
         }
@@ -254,7 +252,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
             public void run() {
                 dayCheck();
 
-                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
+                if (target == null || !target.isValid() || target.getHealth() <= 0) {
                     findTarget(50);
 
                     if (target == null) {
@@ -266,7 +264,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     return;
                 }
 
-                locationHelper.zero().add(target.locX, target.locY, target.locZ);
+                target.getLocation(locationHelper);
 
                 if (i % servantSpawn == 0 && !phaseTwo && locationHelper.distance(location) < 25 && servantCount <= 10) {
                     new ServantOfCthulhu(location, EyeOfCthulhu.this);
@@ -274,11 +272,11 @@ public class EyeOfCthulhu extends ParticleEnemy {
                     servantCount++;
                 }
 
-                locationHelper.add(0, target.length + 7.5, 0);
+                locationHelper.add(0, target.getBoundingBox().getHeight() + 7.5, 0);
                 LVMath.subtractToVector(vectorHelper, locationHelper, location);
                 vectorHelper.normalize().multiply(0.25);
                 model.move(vectorHelper);
-                locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                locationHelper.subtract(0, (target.getBoundingBox().getHeight() / 2) + 7.5, 0);
                 faceAroundBody(locationHelper);
                 damageNearby(location, 3);
 
@@ -315,7 +313,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
             public void run() {
                 dayCheck();
 
-                if (target == null || !target.valid || !target.isAlive() || target.getHealth() <= 0) {
+                if (target == null || !target.isValid() || target.getHealth() <= 0) {
                     findTarget(50);
 
                     if (target == null) {
@@ -333,7 +331,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
                 }
 
                 if (waiting) {
-                    locationHelper.zero().add(target.locX, target.locY + (target.length / 2), target.locZ);
+                    target.getLocation(locationHelper).add(0, (target.getBoundingBox().getHeight() / 2), 0);
                     LVMath.subtractToVector(vectorHelper, locationHelper, location);
                     vectorHelper.normalize().multiply(20D / dashTime * 2);
                     faceAroundBody(locationHelper);
@@ -483,7 +481,7 @@ public class EyeOfCthulhu extends ParticleEnemy {
         for (Entity e : center.getWorld().getNearbyEntities(center, 25, 25, 25)) {
             if (!(e instanceof Player)) continue;
 
-            ((Player) e).playSound(center, Sound.ENDERDRAGON_GROWL, 3, (float) pitch);
+            ((Player) e).playSound(center, Sound.ENTITY_ENDER_DRAGON_GROWL, 3, (float) pitch);
         }
     }
 }
